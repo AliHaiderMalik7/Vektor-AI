@@ -17,7 +17,7 @@ class LLMService:
     def generate_chatgpt_response(
         self,
         prompt: str,
-        model: str = "gpt-4.1-mini",
+        model: str = "gpt-4o-mini",
         system_message: str = "You are a helpful travel assistant. Ask clarifying questions if needed.",
         max_tokens: int = 500,
         temperature: float = 0.7,
