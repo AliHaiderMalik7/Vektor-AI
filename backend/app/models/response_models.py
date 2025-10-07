@@ -1,4 +1,4 @@
-# from pydantic import BaseModel
+from pydantic import BaseModel
 
-# class ChatResponse(BaseModel):
-#     response: str
+class LLMResponse(BaseModel):
+    response: str

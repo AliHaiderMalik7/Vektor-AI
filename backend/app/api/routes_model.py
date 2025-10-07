@@ -1,12 +1,23 @@
-# from fastapi import APIRouter
-# from app.services.llm_service import LLMService
-# from app.models.request_models import ChatRequest
-# from app.models.response_models import ChatResponse
+# app/api/routes_model.py
+from fastapi import APIRouter, HTTPException
+from app.services.llm_service import LLMService
+from app.models.request_models import LLMRequest
+from app.models.response_models import LLMResponse
+import logging
 
-# router = APIRouter()
-# llm_service = LLMService()
+logger = logging.getLogger(__name__)
+router = APIRouter()
+llm_service = LLMService()
 
-# @router.post("/chat", response_model=ChatResponse)
-# async def chat_with_model(request: ChatRequest):
-#     reply = llm_service.generate_response(request.prompt)
-#     return ChatResponse(response=reply)
+@router.post("/generate")
+async def generate_llm_response(request: LLMRequest):
+    try:
+        result = llm_service.generate_chatgpt_response(
+            prompt=request.prompt,
+            model=request.model,
+            system_message=request.system_message,
+            enable_web_search=request.enable_web_search,  # ✅ from user input
+        )
+        return {"response": result}
+    except Exception as e:
+        return {"detail": str(e)}

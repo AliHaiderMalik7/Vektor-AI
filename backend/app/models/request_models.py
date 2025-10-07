@@ -1,4 +1,20 @@
-# from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-# class ChatRequest(BaseModel):
-#     response: str
+class LLMRequest(BaseModel):
+    prompt: str = Field(
+        ...,
+        description="The prompt to send to the LLM"
+        )
+    model: str = Field(
+        default="gpt-4.1-mini",
+        description="Model to use"
+        )
+    system_message: str = Field(
+        default="You are a helpful assistant.",
+        description="System message for the LLM"
+        )
+    
+    enable_web_search: bool = Field(
+        default = False,
+        description = "Enable web search"
+    )
