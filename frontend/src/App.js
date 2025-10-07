@@ -1,24 +1,18 @@
-import logo from './logo.svg';
+import React from 'react';
+import { MantineProvider, createTheme } from '@mantine/core';
+import AppRouter from './AppRouter';
 import './App.css';
+
+const theme = createTheme({
+  colorScheme: 'dark',
+  primaryColor: 'teal',
+});
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <MantineProvider theme={theme}>
+      <AppRouter />
+    </MantineProvider>
   );
 }
 
