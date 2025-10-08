@@ -16,7 +16,17 @@ async def generate_response_stream(request: LLMRequest):
         stream=True
     )
     
+    # return StreamingResponse(
+    #     response_generator,
+    #     media_type="text/plain"
+    # )
+    
     return StreamingResponse(
-        response_generator,
-        media_type="text/plain"
-    )
+    response_generator,
+    media_type="text/event-stream",  # 👈 SSE mode
+    headers={
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "Transfer-Encoding": "chunked"
+    }
+)
