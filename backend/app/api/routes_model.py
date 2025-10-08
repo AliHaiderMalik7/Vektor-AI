@@ -1,23 +1,22 @@
-# app/api/routes_model.py
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
+from fastapi.responses import StreamingResponse
 from app.services.llm_service import LLMService
 from app.models.request_models import LLMRequest
-from app.models.response_models import LLMResponse
-import logging
 
-logger = logging.getLogger(__name__)
 router = APIRouter()
 llm_service = LLMService()
 
+# routes_model.py
 @router.post("/generate")
-async def generate_llm_response(request: LLMRequest):
-    try:
-        result = llm_service.generate_chatgpt_response(
-            prompt=request.prompt,
-            model=request.model,
-            system_message=request.system_message,
-            enable_web_search=request.enable_web_search,  # ✅ from user input
-        )
-        return {"response": result}
-    except Exception as e:
-        return {"detail": str(e)}
+async def generate_response_stream(request: LLMRequest):
+    """Simple text streaming"""
+    response_generator = llm_service.generate_chatgpt_response(
+        prompt=request.prompt,
+        model=request.model,
+        stream=True
+    )
+    
+    return StreamingResponse(
+        response_generator,
+        media_type="text/plain"
+    )

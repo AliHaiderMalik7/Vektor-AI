@@ -2,10 +2,11 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 import logging
+from typing import Generator
+from app.utils.helpers import stream_llm_response
 
 logger = logging.getLogger(__name__)
 load_dotenv()
-
 
 class LLMService:
     def __init__(self):
@@ -22,44 +23,32 @@ class LLMService:
         max_tokens: int = 500,
         temperature: float = 0.7,
         enable_web_search: bool = False,
-    ) -> str:
+        stream: bool = False,  # New parameter
+    ):
         try:
-            # ✅ Automatically enable web search if query mentions flight or fare
-            if any(word in prompt.lower() for word in ["flight", "fare", "ticket", "airline"]):
-                enable_web_search = True
+            logger.info(f"Generating response with web_search={enable_web_search}, stream={stream}")
+            
+            messages = [
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": prompt}
+            ]
 
-            logger.info(f"Generating response with web_search={enable_web_search}")
-
-            # Prompt for the assistant
-            clarification_prompt = f"""
-You are a professional travel planner.
-
-If the user's message lacks key details (dates, travelers, budget, or hotel type), ask follow-up questions.
-
-If all details are provided:
-1. Create a full 5-day itinerary (morning, afternoon, evening).
-2. Recommend 3 hotels with nightly cost in GBP.
-3. Give the **total estimated cost in GBP**.
-4. Use **web search** (if available) to find **real flight fare ranges** from Lahore to London (lowest ↔ highest) for the given dates.
-5. Include 2–3 must-visit tourist sites per day.
-
-User prompt:
-{prompt}
-            """
-
-            # Enable OpenAI’s web search tool
             tools = [{"type": "web_search"}] if enable_web_search else None
 
-            # Send to OpenAI
             response = self.client.responses.create(
                 model=model,
-                input=clarification_prompt,
+                input=messages,
                 tools=tools,
                 temperature=temperature,
                 max_output_tokens=max_tokens,
+                stream=stream,  # Enable streaming
             )
 
-            # Extract output
+            # If streaming, return generator
+            if stream:
+                return stream_llm_response(response)
+            
+            # If not streaming, return complete response
             if hasattr(response, "output_text") and response.output_text:
                 reply = response.output_text.strip()
                 logger.info(f"Response: {reply[:200]}...")
