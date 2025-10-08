@@ -57,7 +57,7 @@ function Home() {
        let buffer = "";
        let hasStreamed = false;
        let appendPromise = Promise.resolve();
-       let lastChar = '';
+       let currentBotText = '';
 
        while (true) {
          const { done, value } = await reader.read();
@@ -83,8 +83,21 @@ function Home() {
                const result = jsonStr;
                // Chain the appending to ensure sequential display
                appendPromise = appendPromise.then(async () => {
-                 // Add space if needed between words (if last char is letter and first is letter)
-                 if (lastChar && /[a-zA-Z]/.test(lastChar) && result.length > 0 && /[a-zA-Z]/.test(result[0])) {
+                 // Add newline if result starts with bullet or number
+                 if (result.trim().match(/^[-*]\s|^[0-9]+\./) && currentBotText && !currentBotText.endsWith('\n')) {
+                   currentBotText += '\n';
+                   setMessages((prev) =>
+                     prev.map((msg) =>
+                       msg.id === botMessageId
+                         ? { ...msg, text: msg.text + '\n' }
+                         : msg
+                     )
+                   );
+                   await new Promise(resolve => setTimeout(resolve, 50)); // delay for newline
+                 }
+                 // Add space if needed before appending (if current text doesn't end with space and result starts with letter)
+                 if (currentBotText && !currentBotText.endsWith(' ') && !currentBotText.endsWith('\n') && result.length > 0 && /[a-zA-Z]/.test(result[0])) {
+                   currentBotText += ' ';
                    setMessages((prev) =>
                      prev.map((msg) =>
                        msg.id === botMessageId
@@ -95,7 +108,7 @@ function Home() {
                    await new Promise(resolve => setTimeout(resolve, 50)); // delay for space
                  }
                  for (let i = 0; i < result.length; i++) {
-                   await new Promise(resolve => setTimeout(resolve, 50)); // 50ms delay per character
+                   currentBotText += result[i];
                    setMessages((prev) =>
                      prev.map((msg) =>
                        msg.id === botMessageId
@@ -103,9 +116,7 @@ function Home() {
                          : msg
                      )
                    );
-                 }
-                 if (result.length > 0) {
-                   lastChar = result[result.length - 1];
+                   await new Promise(resolve => setTimeout(resolve, 50)); // 50ms delay per character
                  }
                });
              }
