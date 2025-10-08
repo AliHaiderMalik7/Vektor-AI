@@ -19,6 +19,11 @@ backend/
 │   │   ├── __init__.py
 │   │   ├── request_models.py      # Request schemas
 │   │   └── response_models.py     # Response schemas
+│   ├── database/
+│   │   ├── __init__.py
+│   │   ├── db_session.py          # SQLAlchemy engine + session
+│   │   ├── models_chat.py         # Conversation + Message tables
+│   │   └── crud_chat.py           # CRUD functions for chat history
 │   └── utils/
 │       ├── __init__.py
 │       └── helpers.py             # Helper functions
