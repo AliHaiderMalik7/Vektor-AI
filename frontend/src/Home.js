@@ -153,6 +153,7 @@ function Home() {
         flexDirection: "column",
         backgroundColor: "#1a1b1e",
         overflow: "hidden",
+        paddingTop: "80px", // Account for fixed header
       }}>
       <Header />
 
