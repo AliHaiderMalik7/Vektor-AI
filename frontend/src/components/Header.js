@@ -1,8 +1,12 @@
-import { Avatar, Title, Group, Button } from "@mantine/core";
-import { IconUser } from "@tabler/icons-react";
+import { Avatar, Title, Group, Button, ActionIcon, useMantineTheme } from "@mantine/core";
+import { IconUser, IconSun, IconMoon } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
+import { useTheme } from "../ThemeProvider";
 
 function Header() {
+  const { theme: currentTheme, toggleTheme } = useTheme();
+  const theme = useMantineTheme();
+
   return (
     <Group
       justify="space-between" // Mantine v7+ (use "position"="apart" in v6)
@@ -15,16 +19,16 @@ function Header() {
         left: 0,
         right: 0,
         zIndex: 1000,
-        backgroundColor: "#1a1b1e",
+        backgroundColor: currentTheme === 'dark' ? '#1a1b1e' : '#ffffff',
         display: "flex",
       }}
     >
       {/* Left side: logo + title */}
       <Group style={{ paddingLeft: "20px" }}>
-        <Avatar radius="xl" style={{ backgroundColor: "#373a40" }}>
+        <Avatar radius="xl" style={{ backgroundColor: currentTheme === 'dark' ? '#373a40' : '#dee2e6' }}>
           <IconUser size={20} />
         </Avatar>
-        <Title order={3} style={{ color: "#fff", fontWeight: 600 }}>
+        <Title order={3} style={{ color: currentTheme === 'dark' ? '#fff' : '#000', fontWeight: 600 }}>
           Vektor.ai
         </Title>
       </Group>
@@ -40,10 +44,10 @@ function Header() {
         <Button
           component={Link}
           to="/login"
-          variant="outline"
+          variant="filled"
           style={{
-            color: "#667eea",
-            borderColor: "#667eea",
+            background: theme.other.gradient,
+            color: "#fff",
             fontWeight: 600,
           }}
         >
@@ -54,13 +58,24 @@ function Header() {
           to="/signup"
           variant="filled"
           style={{
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            background: theme.other.gradient,
             color: "#fff",
             fontWeight: 600,
           }}
         >
           Signup
         </Button>
+        <ActionIcon
+          onClick={toggleTheme}
+          variant="subtle"
+          color="blue"
+          size="lg"
+          style={{
+            boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+          }}
+        >
+          {currentTheme === 'dark' ? <IconSun size={18} /> : <IconMoon size={18} />}
+        </ActionIcon>
       </Group>
     </Group>
   );

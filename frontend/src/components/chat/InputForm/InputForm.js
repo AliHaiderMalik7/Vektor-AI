@@ -1,11 +1,13 @@
-import { Textarea, Button } from "@mantine/core";
+import { Textarea, Button, useMantineTheme } from "@mantine/core";
 
 function InputForm({ currentPrompt, setCurrentPrompt, handleSubmit, loading }) {
+  const theme = useMantineTheme();
+
   return (
     <div
       style={{
         padding: "20px",
-        borderTop: "1px solid #373a40",
+        borderTop: `1px solid ${theme.other.border}`,
         flexShrink: 0,
       }}>
       <form
@@ -26,9 +28,9 @@ function InputForm({ currentPrompt, setCurrentPrompt, handleSubmit, loading }) {
             input: {
               fontSize: "14px",
               fontWeight: 500,
-              backgroundColor: "#2c2e33",
-              color: "#fff",
-              border: "1px solid #373a40",
+              backgroundColor: theme.other.inputBackground,
+              color: theme.other.text,
+              border: `1px solid ${theme.other.border}`,
             },
           }}
         />
@@ -39,8 +41,7 @@ function InputForm({ currentPrompt, setCurrentPrompt, handleSubmit, loading }) {
           disabled={loading}
           style={{
             fontWeight: 600,
-            background:
-              "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            background: theme.other.gradient,
             height: "fit-content",
             minHeight: "42px",
           }}>

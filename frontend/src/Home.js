@@ -1,11 +1,13 @@
 import "./App.css";
 import { useState } from "react";
+import { useMantineTheme } from "@mantine/core";
 import Header from "./components/Header";
 import InitialInput from "./components/InitialInput";
 import ChatPanel from "./components/chat/ChatPanel";
 import WorkspacePanel from "./components/workspace/WorkspacePanel";
 
 function Home() {
+  const theme = useMantineTheme();
   const [messages, setMessages] = useState([]);
   const [currentPrompt, setCurrentPrompt] = useState("");
   const [loading, setLoading] = useState(false);
@@ -151,7 +153,7 @@ function Home() {
         height: "100vh",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "#1a1b1e",
+        backgroundColor: theme.other.background,
         overflow: "hidden",
         paddingTop: "80px", // Account for fixed header
       }}>

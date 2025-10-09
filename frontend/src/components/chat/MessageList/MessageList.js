@@ -1,4 +1,4 @@
-import { Card, Text, Avatar } from "@mantine/core";
+import { Card, Text, Avatar, useMantineTheme } from "@mantine/core";
 import { IconUser } from "@tabler/icons-react";
 
 function parseText(text) {
@@ -17,6 +17,8 @@ function parseText(text) {
 }
 
 function MessageList({ messages }) {
+  const theme = useMantineTheme();
+
   return (
     <div
       style={{
@@ -31,13 +33,13 @@ function MessageList({ messages }) {
           p="md"
           radius="md"
           style={{
-            backgroundColor: "#2c2e33",
-            border: "1px solid #373a40",
+            backgroundColor: theme.other.cardBackground,
+            border: `1px solid ${theme.other.border}`,
           }}>
           {msg.type === "bot" ? (
             <pre
               style={{
-                color: "#fff",
+                color: theme.other.text,
                 lineHeight: 1.6,
                 fontFamily: "inherit",
                 whiteSpace: "pre-wrap",
@@ -50,7 +52,7 @@ function MessageList({ messages }) {
               <Avatar size="sm" radius="xl" color="blue">
                 <IconUser size={16} />
               </Avatar>
-              <Text style={{ color: "#fff", lineHeight: 1.6 }}>{msg.text}</Text>
+              <Text style={{ color: theme.other.text, lineHeight: 1.6 }}>{msg.text}</Text>
             </div>
           )}
         </Card>

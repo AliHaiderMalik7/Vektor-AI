@@ -1,6 +1,8 @@
-import { Textarea, Button, Title, Text } from "@mantine/core";
+import { Textarea, Button, Title, Text, useMantineTheme } from "@mantine/core";
 
 function InitialInput({ currentPrompt, setCurrentPrompt, handleSubmit, loading }) {
+  const theme = useMantineTheme();
+
   return (
     <div
       style={{
@@ -14,7 +16,7 @@ function InitialInput({ currentPrompt, setCurrentPrompt, handleSubmit, loading }
         style={{ width: "100%", maxWidth: "600px", textAlign: "center" }}>
         <Title
           order={1}
-          style={{ color: "#fff", marginBottom: "20px", fontWeight: 700 }}>
+          style={{ color: theme.other.text, marginBottom: "20px", fontWeight: 700 }}>
           Discover Your Next Adventure
         </Title>
         <Text size="lg" color="dimmed" style={{ marginBottom: "30px" }}>
@@ -32,10 +34,10 @@ function InitialInput({ currentPrompt, setCurrentPrompt, handleSubmit, loading }
               input: {
                 fontSize: "16px",
                 fontWeight: 500,
-                backgroundColor: "#2c2e33",
-                color: "#fff",
+                backgroundColor: theme.other.inputBackground,
+                color: theme.other.text,
                 minHeight: "150px",
-                border: "1px solid #373a40",
+                border: `1px solid ${theme.other.border}`,
               },
             }}
           />
@@ -47,8 +49,7 @@ function InitialInput({ currentPrompt, setCurrentPrompt, handleSubmit, loading }
             style={{
               fontWeight: 600,
               fontSize: "16px",
-              background:
-                "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              background: theme.other.gradient,
             }}>
             {loading ? "Generating..." : "Generate Travel Plan"}
           </Button>
