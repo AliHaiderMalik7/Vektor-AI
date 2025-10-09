@@ -9,7 +9,7 @@ function Header() {
 
   return (
     <Group
-      justify="space-between" // Mantine v7+ (use "position"="apart" in v6)
+      justify="space-between" 
       align="center"
       style={{
         padding: "20px",
@@ -23,22 +23,20 @@ function Header() {
         display: "flex",
       }}
     >
-      {/* Left side: logo + title */}
       <Group style={{ paddingLeft: "20px" }}>
-        <Avatar radius="xl" style={{ backgroundColor: currentTheme === 'dark' ? '#373a40' : '#dee2e6' }}>
-          <IconUser size={20} />
+        <Avatar radius="xl" style={{ backgroundColor: currentTheme === 'dark' ? '#495057' : '#dee2e6' }}>
+          <IconUser size={20} color={currentTheme === 'dark' ? '#fff' : '#000'} />
         </Avatar>
         <Title order={3} style={{ color: currentTheme === 'dark' ? '#fff' : '#000', fontWeight: 600 }}>
           Vektor.ai
         </Title>
       </Group>
 
-      {/* Right side: buttons */}
       <Group
         style={{
           paddingRight: "20px",
           gap: "10px",
-          marginLeft: "auto", // 👈 pushes the buttons fully to the right
+          marginLeft: "auto", 
         }}
       >
         <Button

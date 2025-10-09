@@ -7,6 +7,7 @@ export const useTheme = () => useContext(ThemeContext);
 
 const lightTheme = createTheme({
   colorScheme: 'light',
+  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
   colors: {
     dark: ['#d5d7e0', '#acaebf', '#8c8fa3', '#666980', '#4d4f66', '#34354a', '#2b2c3d', '#1a1b2e', '#0f1015', '#01010a'],
     gray: ['#f8f9fa', '#e9ecef', '#dee2e6', '#ced4da', '#adb5bd', '#6c757d', '#495057', '#343a40', '#212529', '#000000'],
@@ -22,8 +23,8 @@ const lightTheme = createTheme({
   },
   other: {
     background: '#ffffff',
-    surface: '#f8f9fa',
-    text: '#000000',
+    surface: '#e9ecef',
+    text: '#212529',
     textSecondary: '#6c757d',
     border: '#dee2e6',
     cardBackground: '#ffffff',
@@ -35,6 +36,7 @@ const lightTheme = createTheme({
 
 const darkTheme = createTheme({
   colorScheme: 'dark',
+  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
   colors: {
     dark: ['#c1c2c5', '#a6a7ab', '#909296', '#5c5f66', '#373a40', '#2c2e33', '#25262b', '#1a1b1e', '#141517', '#101113'],
     gray: ['#f8f9fa', '#e9ecef', '#dee2e6', '#ced4da', '#adb5bd', '#6c757d', '#495057', '#343a40', '#212529', '#000000'],

@@ -30,7 +30,34 @@ function InputForm({ currentPrompt, setCurrentPrompt, handleSubmit, loading }) {
               fontWeight: 500,
               backgroundColor: theme.other.inputBackground,
               color: theme.other.text,
-              border: `1px solid ${theme.other.border}`,
+              border: theme.colorScheme === 'light'
+                ? '2px solid #e1e5e9'
+                : `1px solid ${theme.other.border}`,
+              borderRadius: "12px",
+              boxShadow: theme.colorScheme === 'light'
+                ? '0 4px 12px rgba(0,0,0,0.1), inset 0 1px 2px rgba(255,255,255,0.8)'
+                : 'none',
+              transition: 'all 0.3s ease',
+              '&::-webkit-scrollbar': {
+                width: '8px',
+              },
+              '&::-webkit-scrollbar-track': {
+                background: theme.colorScheme === 'dark' ? '#2c2e33' : '#f1f3f4',
+                borderRadius: '4px',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                background: theme.colorScheme === 'dark' ? '#5c5f66' : '#c1c2c5',
+                borderRadius: '4px',
+              },
+              '&::-webkit-scrollbar-thumb:hover': {
+                background: theme.colorScheme === 'dark' ? '#909296' : '#a6a7ab',
+              },
+              '&:focus': {
+                borderColor: theme.colors.blue[5],
+                boxShadow: theme.colorScheme === 'light'
+                  ? '0 0 0 3px rgba(59, 130, 246, 0.1), inset 0 1px 2px rgba(255,255,255,0.8)'
+                  : '0 0 0 3px rgba(59, 130, 246, 0.2)',
+              },
             },
           }}
         />

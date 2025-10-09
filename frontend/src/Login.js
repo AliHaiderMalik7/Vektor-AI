@@ -8,10 +8,17 @@ import {
   Text,
   Box,
   Group,
+  ActionIcon,
+  useMantineTheme,
 } from "@mantine/core";
+import { IconSun, IconMoon } from "@tabler/icons-react";
+import { useTheme } from "./ThemeProvider";
 import "./App.css";
 
 function Login() {
+  const { theme, toggleTheme } = useTheme();
+  const mantineTheme = useMantineTheme();
+
   return (
     <div className="auth-container">
       <div className="auth-image">
