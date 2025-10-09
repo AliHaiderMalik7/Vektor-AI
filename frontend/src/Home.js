@@ -105,7 +105,7 @@ function Home() {
                          : msg
                      )
                    );
-                   await new Promise(resolve => setTimeout(resolve, 50)); // delay for space
+                   await new Promise(resolve => setTimeout(resolve, 20)); // delay for space
                  }
                  for (let i = 0; i < result.length; i++) {
                    currentBotText += result[i];
@@ -116,7 +116,7 @@ function Home() {
                          : msg
                      )
                    );
-                   await new Promise(resolve => setTimeout(resolve, 50)); // 50ms delay per character
+                   await new Promise(resolve => setTimeout(resolve, 20)); // 50ms delay per character
                  }
                });
              }

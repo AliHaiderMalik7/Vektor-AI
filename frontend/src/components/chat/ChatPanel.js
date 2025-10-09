@@ -6,7 +6,7 @@ function ChatPanel({ messages, currentPrompt, setCurrentPrompt, handleSubmit, lo
   return (
     <Paper
       style={{
-        flex: "0 0 400px",
+        flex: "0 0 35%",
         display: "flex",
         flexDirection: "column",
         backgroundColor: "#25262b",

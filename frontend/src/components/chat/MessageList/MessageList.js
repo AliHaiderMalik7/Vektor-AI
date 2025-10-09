@@ -1,10 +1,18 @@
-import { Card, Text } from "@mantine/core";
+import { Card, Text, Avatar } from "@mantine/core";
+import { IconUser } from "@tabler/icons-react";
 
 function parseText(text) {
+  if (!text) return "";
+
+  // Replace markdown-style bold (**text** or __text__)
+  let html = text.replace(/(\*\*|__)(.*?)\1/g, "<strong>$2</strong>");
+
+  // Replace *text* with <em>text</em> (italic)
+  html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
+
   // Replace newlines with <br>
-  let html = text.replace(/\n/g, '<br>');
-  // Replace **text** with <strong>text</strong>
-  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\n/g, "<br/>");
+
   return html;
 }
 
@@ -27,11 +35,10 @@ function MessageList({ messages }) {
             border: "1px solid #373a40",
           }}>
           {msg.type === "bot" ? (
-            <div
+            <pre
               style={{
                 color: "#fff",
                 lineHeight: 1.6,
-                margin: 0,
                 fontFamily: "inherit",
                 whiteSpace: "pre-wrap",
                 wordWrap: "break-word",
@@ -39,9 +46,12 @@ function MessageList({ messages }) {
               dangerouslySetInnerHTML={{ __html: parseText(msg.text) }}
             />
           ) : (
-            <Text style={{ color: "#fff", lineHeight: 1.6 }}>
-              {msg.text}
-            </Text>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <Avatar size="sm" radius="xl" color="blue">
+                <IconUser size={16} />
+              </Avatar>
+              <Text style={{ color: "#fff", lineHeight: 1.6 }}>{msg.text}</Text>
+            </div>
           )}
         </Card>
       ))}
