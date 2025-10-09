@@ -1,4 +1,6 @@
 from pydantic import BaseModel, Field
+from typing import Optional, List
+from uuid import UUID
 
 class LLMRequest(BaseModel):
     
@@ -21,3 +23,13 @@ class LLMRequest(BaseModel):
         default = False,
         description = "Enable web search"
     )
+
+    conversation_id: Optional[str] = Field(
+        default= None,
+        description="Existing conversation ID (for continuing chat)"
+    )
+
+    title: Optional[str] = None
+    action: Optional[str] = "generate"
+    message_id: Optional[str] = None
+    content: Optional[str] = None
