@@ -7,27 +7,27 @@ function WorkspacePanel() {
   return (
     <Paper
       style={{
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        backgroundColor: theme.other.surface,
-        borderRadius: "12px",
-        overflow: "hidden",
+        // flex: 1,
+        // display: "flex",
+        // flexDirection: "column",
+        // backgroundColor: theme.other.surface,
+        // borderRadius: "12px",
+        // overflow: "hidden",
       }}>
-      <div
+      {/* <div
         style={{
           padding: "20px",
           borderBottom: `1px solid ${theme.other.border}`,
           flexShrink: 0,
-        }}>
-        <Title order={4} style={{ color: theme.other.text }}>
+        }}> */}
+        {/* <Title order={4} style={{ color: theme.other.text }}>
           Travel Plan
-        </Title>
-      </div>
+        </Title> */}
+      {/* </div> */}
 
-      <ScrollArea style={{ flex: 1, padding: "20px" }}>
+      {/* <ScrollArea style={{ flex: 1, padding: "20px" }}>
         <TravelPlan />
-      </ScrollArea>
+      </ScrollArea> */}
     </Paper>
   );
 }
