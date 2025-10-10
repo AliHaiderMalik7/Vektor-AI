@@ -146,8 +146,8 @@ function InitialInput({
                 color: theme.colorScheme === "light" ? "#2c3e50" : "#e9ecef",
                 fontStyle: "italic",
               }}>
-              {interimTranscript
-                ? `"${interimTranscript}"`
+              {currentPrompt + interimTranscript
+                ? `"${currentPrompt + interimTranscript}"`
                 : "Waiting for speech..."}
             </Text>
           </Stack>
@@ -209,6 +209,12 @@ function InitialInput({
             <Textarea
               value={currentPrompt + interimTranscript}
               onChange={(e) => setCurrentPrompt(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit(e);
+                }
+              }}
               placeholder={
                 isRecording ? "Listening..." : "e.g., Plan a 7-day trip to Japan in spring"
               }

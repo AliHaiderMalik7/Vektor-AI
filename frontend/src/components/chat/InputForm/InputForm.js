@@ -169,6 +169,12 @@ function InputForm({ currentPrompt, setCurrentPrompt, handleSubmit, loading }) {
             <Textarea
               value={currentPrompt + interimTranscript}
               onChange={(e) => setCurrentPrompt(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit(e);
+                }
+              }}
               placeholder={
                 isRecording ? "Listening..." : "Type or speak your message..."
               }
