@@ -28,17 +28,21 @@ async def generate_response_stream(request: LLMRequest, db: Session = Depends(ge
     if getattr(request, "update_message_id", None):
         crud_chat.update_message(db, request.update_message_id, request.prompt)
 
+    # Gather conversation history for context
+    messages = crud_chat.get_messages_by_conversation(db, conversation.id)
+    history = [{"role": m.role, "content": m.content} for m in messages]
+
     # Store new user message
-    crud_chat.create_message(
+    user_message = crud_chat.create_message(
         db,
         conversation_id=conversation.id,
         content=request.prompt,
         role="user"
     )
 
-    # Gather conversation history for context
     messages = crud_chat.get_messages_by_conversation(db, conversation.id)
-    history = [{"role": m.role, "content": m.content} for m in messages]
+    history_messages = [msg for msg in messages if msg.id != user_message.id]
+    history = [{"role": m.role, "content": m.content} for m in history_messages]
 
     # Stream assistant response with memory
     def response_generator():

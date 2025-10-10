@@ -20,15 +20,13 @@ class LLMService:
         prompt: str,
         model: str = "gpt-4o-mini",
         history: Optional[List[Dict[str, str]]] = None,
-        system_message: str = "You are a helpful travel assistant. Ask clarifying questions if needed.",
+        system_message: str = "You are a helpful flight assistant. Ask clarifying questions if needed.",
         max_tokens: int = 500,
         temperature: float = 0.7,
         enable_web_search: bool = False,
         stream: bool = False,
     ) -> Generator[str, None, None] | str:
-        """
-        Generate response from OpenAI API with optional memory and streaming.
-        """
+    
         try:
             logger.info(f"Generating response with web_search={enable_web_search}, stream={stream}")
 
