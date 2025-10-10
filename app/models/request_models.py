@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, List
-from uuid import UUID
+from typing import Optional
 
 class LLMRequest(BaseModel):
     
@@ -22,14 +21,18 @@ class LLMRequest(BaseModel):
     enable_web_search: bool = Field(
         default = False,
         description = "Enable web search"
-    )
+        )
+    
+    class ConversationCreate(BaseModel):
+        title: Optional[str]
+        
+    class ConversationUpdate(BaseModel):
+        title: str
 
-    conversation_id: Optional[str] = Field(
-        default= None,
-        description="Existing conversation ID (for continuing chat)"
-    )
+    class MessageCreate(BaseModel):
+        conversation_id: int
+        content: str
+        role: str
 
-    title: Optional[str] = None
-    action: Optional[str] = "generate"
-    message_id: Optional[str] = None
-    content: Optional[str] = None
+    class MessageUpdate(BaseModel):
+        content: str

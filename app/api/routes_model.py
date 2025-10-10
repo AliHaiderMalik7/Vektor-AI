@@ -1,90 +1,72 @@
-# from fastapi import APIRouter
-# from fastapi.responses import StreamingResponse
-# from app.services.llm_service import LLMService
-# from app.models.request_models import LLMRequest
-
-# router = APIRouter()
-# llm_service = LLMService()
-
-# # routes_model.py
-# @router.post("/generate")
-# async def generate_response_stream(request: LLMRequest):
-#     """Simple text streaming"""
-#     response_generator = llm_service.generate_chatgpt_response(
-#         prompt=request.prompt,
-#         model=request.model,
-#         stream=True
-#     )
-#     return StreamingResponse(
-#     response_generator,
-#     media_type="text/event-stream",  # 👈 SSE mode
-#     headers={
-#         "Cache-Control": "no-cache",
-#         "Connection": "keep-alive",
-#         "Transfer-Encoding": "chunked"
-#     }
-# )
-
-
-
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import StreamingResponse, JSONResponse
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
+from sqlalchemy.orm import Session
 from app.services.llm_service import LLMService
 from app.models.request_models import LLMRequest
 from app.database import crud_chat
+from app.database.db_session import get_db
 
 router = APIRouter()
 llm_service = LLMService()
 
 @router.post("/generate")
-async def generate_response_stream(request: LLMRequest):
-    """
-    Extended API: 
-    - Manage conversation/message CRUD
-    - Stream LLM responses
-    """
+async def generate_response_stream(request: LLMRequest, db: Session = Depends(get_db)):
 
-    action = request.action or "generate"
+    # Handle conversation creation or fetch
+    conv_id = getattr(request, "conversation_id", None)
+    if conv_id:
+        conversation = crud_chat.get_conversation(db, conv_id)
+        if not conversation:
+            raise HTTPException(status_code=404, detail="Conversation not found")
+    else:
+        conversation = crud_chat.create_conversation(db, title=request.prompt[:50])
 
-    # --- Conversation + Message CRUD Actions ---
-    if action == "create_conversation":
-        convo = await crud_chat.create_conversation(user_id="default-user", title=request.title)
-        return JSONResponse({"status": "success", "conversation": convo.dict()})
+    # Optional updates
+    if getattr(request, "new_title", None):
+        crud_chat.update_conversation_title(db, conversation.id, request.new_title)
 
-    elif action == "update_conversation":
-        if not request.conversation_id or not request.title:
-            raise HTTPException(status_code=400, detail="conversation_id and title are required")
-        convo = await crud_chat.update_conversation(request.conversation_id, request.title)
-        return JSONResponse({"status": "success", "conversation": convo.dict()})
+    if getattr(request, "update_message_id", None):
+        crud_chat.update_message(db, request.update_message_id, request.prompt)
 
-    elif action == "delete_conversation":
-        if not request.conversation_id:
-            raise HTTPException(status_code=400, detail="conversation_id is required")
-        convo = await crud_chat.delete_conversation(request.conversation_id)
-        return JSONResponse({"status": "deleted", "conversation": convo.dict()})
+    # Store new user message
+    crud_chat.create_message(
+        db,
+        conversation_id=conversation.id,
+        content=request.prompt,
+        role="user"
+    )
 
-    elif action == "update_message":
-        if not request.message_id or not request.content:
-            raise HTTPException(status_code=400, detail="message_id and content are required")
-        msg = await crud_chat.update_message(request.message_id, request.content)
-        return JSONResponse({"status": "success", "message": msg.dict()})
+    # Gather conversation history for context
+    messages = crud_chat.get_messages_by_conversation(db, conversation.id)
+    history = [{"role": m.role, "content": m.content} for m in messages]
 
-    # --- Default: Generate LLM Response (streaming) ---
-    elif action == "generate":
-        response_generator = llm_service.generate_chatgpt_response(
+    # Stream assistant response with memory
+    def response_generator():
+        assistant_content = ""
+        for chunk in llm_service.generate_chatgpt_response(
             prompt=request.prompt,
             model=request.model,
-            stream=True
-        )
-        return StreamingResponse(
-            response_generator,
-            media_type="text/event-stream",
-            headers={
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-                "Transfer-Encoding": "chunked"
-            }
+            stream=True,
+            history=history  # ✅ add conversation memory
+        ):
+            assistant_content += chunk
+            yield chunk
+
+        # Save assistant message after streaming
+        crud_chat.create_message(
+            db,
+            conversation_id=conversation.id,
+            content=assistant_content,
+            role="assistant"
         )
 
-    else:
-        raise HTTPException(status_code=400, detail=f"Unknown action: {action}")
+    return StreamingResponse(
+        response_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Transfer-Encoding": "chunked",
+            "X-Conversation-Id": str(conversation.id),  # 👈 send ID back
+        },
+    )

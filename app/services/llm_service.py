@@ -2,7 +2,7 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 import logging
-from typing import Generator
+from typing import Generator, List, Dict, Optional
 from app.utils.helpers import stream_llm_response
 
 logger = logging.getLogger(__name__)
@@ -19,36 +19,44 @@ class LLMService:
         self,
         prompt: str,
         model: str = "gpt-4o-mini",
+        history: Optional[List[Dict[str, str]]] = None,
         system_message: str = "You are a helpful travel assistant. Ask clarifying questions if needed.",
         max_tokens: int = 500,
         temperature: float = 0.7,
         enable_web_search: bool = False,
-        stream: bool = False,  # New parameter
-    ):
+        stream: bool = False,
+    ) -> Generator[str, None, None] | str:
+        """
+        Generate response from OpenAI API with optional memory and streaming.
+        """
         try:
             logger.info(f"Generating response with web_search={enable_web_search}, stream={stream}")
-            
-            messages = [
-                {"role": "system", "content": system_message},
-                {"role": "user", "content": prompt}
-            ]
 
+            # Combine history + current user prompt
+            messages = [{"role": "system", "content": system_message}]
+            if history:
+                messages.extend(history)
+            messages.append({"role": "user", "content": prompt})
+
+            # Optional tools setup
             tools = [{"type": "web_search"}] if enable_web_search else None
 
+            # Call OpenAI API
             response = self.client.responses.create(
                 model=model,
                 input=messages,
                 tools=tools,
                 temperature=temperature,
                 max_output_tokens=max_tokens,
-                stream=stream,  # Enable streaming
+                stream=stream,
             )
 
-            # If streaming, return generator
+            # If streaming, yield chunks
             if stream:
+                logger.info("Streaming response...")
                 return stream_llm_response(response)
-            
-            # If not streaming, return complete response
+
+            # If not streaming, return full text
             if hasattr(response, "output_text") and response.output_text:
                 reply = response.output_text.strip()
                 logger.info(f"Response: {reply[:200]}...")

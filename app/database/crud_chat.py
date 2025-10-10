@@ -1,32 +1,47 @@
-from prisma import Prisma
-from typing import Optional
+from sqlalchemy.orm import Session
+from app.database import models_chat as models
 
-db = Prisma()
+# Conversation CRUD
+def create_conversation(db: Session, title: str = None):
+    conv = models.Conversation(title=title)
+    db.add(conv)
+    db.commit()
+    db.refresh(conv)
+    return conv
 
-async def connect_db():
-    if not db.is_connected():
-        await db.connect()
+def get_conversation(db: Session, conversation_id: int):
+    return db.query(models.Conversation).filter(models.Conversation.id == conversation_id).first()
 
-async def create_conversation(user_id: str, title: Optional[str] = None):
-    await connect_db()
-    return await db.conversation.create(
-        data={"userId": user_id, "title": title or "Untitled Conversation"}
-    )
+def update_conversation_title(db: Session, conversation_id: int, title: str):
+    conv = get_conversation(db, conversation_id)
+    if conv:
+        conv.title = title
+        db.commit()
+        db.refresh(conv)
+    return conv
 
-async def update_conversation(conversation_id: str, title: str):
-    await connect_db()
-    return await db.conversation.update(
-        where={"id": conversation_id},
-        data={"title": title}
-    )
+def delete_conversation(db: Session, conversation_id: int):
+    conv = get_conversation(db, conversation_id)
+    if conv:
+        db.delete(conv)
+        db.commit()
+    return conv
 
-async def delete_conversation(conversation_id: str):
-    await connect_db()
-    return await db.conversation.delete(where={"id": conversation_id})
+# Message CRUD
+def create_message(db: Session, conversation_id: int, content: str, role: str):
+    msg = models.Message(conversation_id=conversation_id, content=content, role=role)
+    db.add(msg)
+    db.commit()
+    db.refresh(msg)
+    return msg
 
-async def update_message(message_id: str, content: str):
-    await connect_db()
-    return await db.message.update(
-        where={"id": message_id},
-        data={"content": content}
-    )
+def update_message(db: Session, message_id: int, content: str):
+    msg = db.query(models.Message).filter(models.Message.id == message_id).first()
+    if msg:
+        msg.content = content
+        db.commit()
+        db.refresh(msg)
+    return msg
+
+def get_messages_by_conversation(db: Session, conversation_id: int):
+    return db.query(models.Message).filter(models.Message.conversation_id == conversation_id).all()

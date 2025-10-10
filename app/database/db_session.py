@@ -1,15 +1,26 @@
-# app/database/db_session.py
-from prisma import Prisma
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+import os
+from dotenv import load_dotenv
 
-# Single shared Prisma client instance
-prisma = Prisma()
+load_dotenv()
 
-async def connect_db():
-    if not prisma.is_connected():
-        await prisma.connect()
-        print("✅ Prisma connected.")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-async def disconnect_db():
-    if prisma.is_connected():
-        await prisma.disconnect()
-        print("🛑 Prisma disconnected.")
+engine = create_engine(DATABASE_URL, echo = True)
+
+SessionLocal = sessionmaker(
+    autocommit = False,
+    autoflush = False,
+    bind = engine
+)
+
+Base = declarative_base()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
