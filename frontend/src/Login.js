@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   TextInput,
   Button,
@@ -13,11 +13,50 @@ import {
 } from "@mantine/core";
 import { IconSun, IconMoon } from "@tabler/icons-react";
 import { useTheme } from "./ThemeProvider";
+import { useNavigate } from "react-router-dom";
 import "./App.css";
 
 function Login() {
   const { theme, toggleTheme } = useTheme();
   const mantineTheme = useMantineTheme();
+  const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BASE_URL}/user/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Assuming the API returns a token or user data
+        localStorage.setItem('token', data.token || data.access_token);
+        navigate('/'); // or wherever you want to redirect after login
+      } else {
+        setError(data.message || 'Login failed');
+      }
+    } catch (err) {
+      setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="auth-container">
@@ -67,7 +106,7 @@ function Login() {
           </Box>
 
           {/* Social Login Buttons */}
-          <Group grow mb="md">
+          {/* <Group grow mb="md">
             <Button
               variant="default"
               size="md"
@@ -88,9 +127,9 @@ function Login() {
               }}>
               Continue with Facebook
             </Button>
-          </Group>
+          </Group> */}
 
-          <Text
+          {/* <Text
             align="center"
             size="sm"
             color="dimmed"
@@ -116,14 +155,20 @@ function Login() {
                 zIndex: 0,
               }}
             />
-          </Text>
+          </Text> */}
 
-          <form>
+          <form onSubmit={handleLogin}>
             <Stack spacing="md">
+              {error && (
+                <Text color="red" size="sm" align="center">
+                  {error}
+                </Text>
+              )}
               <TextInput
-                label="Email Address"
-                placeholder="Enter your email"
-                type="email"
+                label="Username"
+                placeholder="Enter your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 size="md"
                 required
                 styles={{
@@ -149,6 +194,8 @@ function Login() {
                 label="Password"
                 placeholder="Enter your password"
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 size="md"
                 required
                 styles={{
@@ -184,6 +231,8 @@ function Login() {
                 type="submit"
                 fullWidth
                 size="md"
+                loading={loading}
+                disabled={loading}
                 style={{
                   background:
                     "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
@@ -193,7 +242,7 @@ function Login() {
                   height: "48px",
                   marginTop: "8px",
                 }}>
-                Sign In
+                {loading ? "Signing In..." : "Sign In"}
               </Button>
             </Stack>
           </form>
