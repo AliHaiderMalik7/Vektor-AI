@@ -14,6 +14,7 @@ import {
   IconMoon,
   IconLogout,
   IconUserCircle,
+  IconPlus,
 } from "@tabler/icons-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTheme } from "../ThemeProvider";
@@ -70,6 +71,66 @@ function Header() {
           }}>
           Vektor.ai
         </Title>
+      </Group>
+
+      {/* New Chat Button in Center */}
+      <Group justify="center" style={{ flex: 1 }}>
+        <Group align="center" spacing="xs">
+          <Text
+            size="sm"
+            style={{
+              color: currentTheme === "dark" ? "#fff" : "#000",
+              fontWeight: 500,
+            }}>
+            New Chat
+          </Text>
+          <ActionIcon
+            variant="filled"
+            color="blue"
+            size="lg"
+            style={{
+              background: theme.other.gradient,
+              boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
+              borderRadius: "50%",
+            }}
+            onClick={() => navigate('/')} // Navigate to home or new chat
+          >
+            <IconPlus size={20} />
+          </ActionIcon>
+          <Menu
+            shadow="md"
+            width={200}
+            styles={(t) => ({
+              dropdown: {
+                backgroundColor: currentTheme === "dark" ? "#1a1b1e" : "#ffffff",
+                border: currentTheme === "dark" ? "1px solid #333" : "1px solid #e0e0e0",
+              },
+              item: {
+                color: currentTheme === "dark" ? "#ffffff" : "#000",
+                "&[data-hovered], &:hover": {
+                  backgroundColor: currentTheme === "dark" ? "#2c2e33" : t.colors.gray[0],
+                },
+              },
+            })}
+          >
+            <Menu.Target>
+              <Button
+                variant="subtle"
+                size="sm"
+                style={{
+                  color: currentTheme === "dark" ? "#fff" : "#000",
+                  fontWeight: 500,
+                }}
+              >
+                GPT-4.0 ▼
+              </Button>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item>GPT-4.0</Menu.Item>
+              <Menu.Item>DeepSeek</Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        </Group>
       </Group>
 
       <Group
