@@ -4,28 +4,31 @@ from app.database import models_chat as models
 from typing import Optional, List
 
 # Conversation CRUD
-def create_conversation(db: Session, title: str = None) -> models.Conversation:
-    """Create a new conversation"""
-    conv = models.Conversation(title=title or "New Conversation")
+
+# crud_chat.py
+def create_conversation(db: Session, title: str = None, user_id: int = None) -> models.Conversation:
+    conv = models.Conversation(title=title or "New Conversation", user_id=user_id)
     db.add(conv)
     db.commit()
     db.refresh(conv)
     return conv
 
+def get_user_conversations(db: Session, user_id: int):
+    return db.query(models.Conversation).filter(models.Conversation.user_id == user_id).order_by(
+        desc(models.Conversation.updated_at)
+    ).all()
+
 def get_conversation(db: Session, conversation_id: int) -> Optional[models.Conversation]:
-    """Get conversation by ID"""
     return db.query(models.Conversation).filter(
         models.Conversation.id == conversation_id
     ).first()
 
 def get_all_conversations(db: Session, limit: int = 50) -> List[models.Conversation]:
-    """Get all conversations ordered by most recent"""
     return db.query(models.Conversation).order_by(
         desc(models.Conversation.updated_at)
     ).limit(limit).all()
 
 def update_conversation_title(db: Session, conversation_id: int, title: str) -> Optional[models.Conversation]:
-    """Update conversation title"""
     conv = get_conversation(db, conversation_id)
     if conv:
         conv.title = title
@@ -34,7 +37,6 @@ def update_conversation_title(db: Session, conversation_id: int, title: str) -> 
     return conv
 
 def delete_conversation(db: Session, conversation_id: int) -> bool:
-    """Delete conversation and all its messages (cascade)"""
     conv = get_conversation(db, conversation_id)
     if conv:
         db.delete(conv)
@@ -49,7 +51,6 @@ def create_message(
     content: str, 
     role: str
 ) -> models.Message:
-    """Create a new message in a conversation"""
     msg = models.Message(
         conversation_id=conversation_id, 
         content=content, 
@@ -61,7 +62,6 @@ def create_message(
     return msg
 
 def update_message(db: Session, message_id: int, content: str) -> Optional[models.Message]:
-    """Update message content"""
     msg = db.query(models.Message).filter(models.Message.id == message_id).first()
     if msg:
         msg.content = content
@@ -70,7 +70,6 @@ def update_message(db: Session, message_id: int, content: str) -> Optional[model
     return msg
 
 def delete_message(db: Session, message_id: int) -> bool:
-    """Delete a specific message"""
     msg = db.query(models.Message).filter(models.Message.id == message_id).first()
     if msg:
         db.delete(msg)
@@ -83,10 +82,7 @@ def get_messages_by_conversation(
     conversation_id: int,
     limit: Optional[int] = None
 ) -> List[models.Message]:
-    """
-    Get all messages for a conversation, ordered chronologically.
-    Optionally limit to most recent N messages.
-    """
+
     query = db.query(models.Message).filter(
         models.Message.conversation_id == conversation_id
     ).order_by(models.Message.created_at)
@@ -105,7 +101,6 @@ def get_conversation_with_messages(
     conversation_id: int,
     message_limit: Optional[int] = None
 ) -> Optional[models.Conversation]:
-    """Get conversation with its messages (useful for response)"""
     conv = get_conversation(db, conversation_id)
     if conv:
         # Preload messages with limit

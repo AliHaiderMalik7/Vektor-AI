@@ -1,11 +1,6 @@
-import asyncio
-from prisma import Prisma
+from app.database.db_session import Base, engine
+from app.database.models_chat import Users, Conversation, Message
 
-async def main():
-    db = Prisma()
-    await db.connect()
-    print("✅ Connected to database successfully!")
-    await db.disconnect()
-
-if __name__ == "__main__":
-    asyncio.run(main())
+print("Creating all tables in the database...")
+Base.metadata.create_all(bind=engine)
+print("✅ Tables created successfully!")

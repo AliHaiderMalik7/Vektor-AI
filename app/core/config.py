@@ -4,6 +4,8 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     DATABASE_URL: str
     OPENAI_API_KEY: str
+    JWT_TOKEN_KEY: str
+    ALGORITHM: str
     HF_HOME: str = "./model_cache"
     ALLOWED_ORIGINS: list = [
         "*",

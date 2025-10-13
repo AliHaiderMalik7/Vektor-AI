@@ -46,7 +46,7 @@ class LLMService:
                 tools=tools,
                 temperature=temperature,
                 max_output_tokens=max_tokens,
-                stream=stream,
+                stream=stream
             )
 
             # If streaming, yield chunks

@@ -15,3 +15,8 @@ psycopg2-binary==2.9.10
 pydantic==2.11.7
 sqlmodel==0.0.27
 prisma==0.15.0
+passlib==1.7.4
+pydantic[email]==2.11.7
+bcrypt==4.3.0
+python-jose==3.5.0
+alembic==1.17.0

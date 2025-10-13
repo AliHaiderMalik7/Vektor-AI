@@ -4,8 +4,7 @@ backend/
 │       ├── main.py                    # FastAPI entry point
 │       ├── api/
 │       │   ├── __init__.py
-│       │   ├── routes_flight.py       # Flight routes
-│       │   ├── routes_voice.py        # Voice routes
+│       │   ├── routes_user.py       # User login/signup routes
 │       │   └── routes_model.py        # LLM routes
 │       ├── core/
 │       │   ├── __init__.py
