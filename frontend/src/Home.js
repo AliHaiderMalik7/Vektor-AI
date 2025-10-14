@@ -25,13 +25,19 @@ function Home() {
       setMessages(prev => [...prev, { text: "", type: "bot", id: botMessageId }]);
 
       try {
+       const token = localStorage.getItem('token');
+       const headers = {
+         "Content-Type": "application/json",
+       };
+       if (token) {
+         headers["Authorization"] = `Bearer ${token}`;
+       }
+
        const response = await fetch(
-         "https://mellifluous-noncalculative-gwenn.ngrok-free.dev/model/generate",
+         `${process.env.REACT_APP_BASE_URL}/model/generate`,
          {
            method: "POST",
-           headers: {
-             "Content-Type": "application/json",
-           },
+           headers,
            body: JSON.stringify({
             stream:true,
              prompt: promptToSend,
