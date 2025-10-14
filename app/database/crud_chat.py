@@ -6,12 +6,26 @@ from typing import Optional, List
 # Conversation CRUD
 
 # crud_chat.py
-def create_conversation(db: Session, title: str = None, user_id: int = None) -> models.Conversation:
-    conv = models.Conversation(title=title or "New Conversation", user_id=user_id)
+# def create_conversation(db: Session, title: str = None, user_id: int = None) -> models.Conversation:
+#     conv = models.Conversation(title=title or "New Conversation", user_id=user_id)
+#     db.add(conv)
+#     db.commit()
+#     db.refresh(conv)
+#     return conv
+
+# crud_chat.py
+def create_conversation(db: Session, title: str = None, user_id: int = None, summary: str = "") -> models.Conversation:
+    """Create a new conversation"""
+    conv = models.Conversation(
+        title=title or "New Conversation",
+        user_id=user_id,
+        summary=summary
+    )
     db.add(conv)
     db.commit()
     db.refresh(conv)
     return conv
+
 
 def get_user_conversations(db: Session, user_id: int):
     return db.query(models.Conversation).filter(models.Conversation.user_id == user_id).order_by(
@@ -45,6 +59,7 @@ def delete_conversation(db: Session, conversation_id: int) -> bool:
     return False
 
 # Message CRUD
+
 def create_message(
     db: Session, 
     conversation_id: int, 
@@ -106,3 +121,24 @@ def get_conversation_with_messages(
         # Preload messages with limit
         conv.messages = get_messages_by_conversation(db, conversation_id, message_limit)
     return conv
+
+def get_messages_by_conversation_id(db: Session, conversation_id: int):
+    messages = (
+        db.query(models.Message)
+        .filter(
+            models.Message.conversation_id == conversation_id,
+            models.Message.role == "user"
+        )
+        .order_by(models.Message.created_at.asc())
+        .all()
+    )
+    return messages
+
+def get_conversations_by_user_id(db: Session, user_id: int):
+    conversations = (
+        db.query(models.Conversation)
+        .filter(models.Conversation.user_id == user_id)
+        .order_by(models.Conversation.updated_at.desc())
+        .all()
+    )
+    return conversations

@@ -25,7 +25,9 @@ backend/
 │       │   └── crud_chat.py           # CRUD functions for chat history
 │       └── utils/
 │           ├── __init__.py
-│           └── helpers.py             # Helper functions
+│           |── helpers.py             # Helper functions
+            |── summarize.py            # Summary of the response
+            └── auth.py                 # Authentication JWT
 │    ├── model_cache/                   # Downloaded models
 │    ├── prisma
 │        ├── schema.prisma
