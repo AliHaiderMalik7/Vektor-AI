@@ -1,30 +1,23 @@
-# Use small Python image
-FROM python:3.11-alpine
+# Use official Python image (small and fast)
+FROM python:3.11-slim
 
 # Set working directory
 WORKDIR /app
 
-# Copy requirements first
+# Copy requirements first (for caching)
 COPY requirements.txt .
 
-# Install system dependencies
-RUN apk add --no-cache \
-    build-base \
-    python3-dev \
-    libffi-dev \
-    openssl-dev \
-    cargo \
-    && pip install --no-cache-dir -r requirements.txt \
-    && rm -rf /root/.cache/pip
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the app
+# Copy the rest of your app
 COPY . .
 
-# Make start script executable
+# Make sure your start script can run
 RUN chmod +x start.sh
 
-# Expose FastAPI port
+# Expose port for FastAPI
 EXPOSE 8000
 
-# Run using sh (Alpine doesn't have bash)
-CMD ["sh", "start.sh"]
+# Run your app via start.sh
+CMD ["bash", "start.sh"]
