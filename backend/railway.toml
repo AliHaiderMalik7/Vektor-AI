@@ -1,0 +1,22 @@
+# railway.toml
+[build]
+# Command to install dependencies
+buildCommand = "pip install --no-cache-dir -r requirements.txt"
+
+# Folder that contains your app
+rootDirectory = "."
+
+[start]
+# Command to start FastAPI
+startCommand = "bash start.sh"
+
+# Expose default FastAPI port
+port = "$PORT"
+
+# Railway will detect this as a web service
+serviceType = "web"
+
+[env]
+# Environment variables for your backend
+PYTHONUNBUFFERED = "1"
+PYTHONDONTWRITEBYTECODE = "1"
