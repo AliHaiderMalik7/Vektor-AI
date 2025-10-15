@@ -1,27 +1,29 @@
-# Use official Python image (small and fast)
+# Use small Python image
 FROM python:3.11-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Copy requirements first (for caching)
+# Copy only requirements first (cache optimization)
 COPY requirements.txt .
 
-# Install dependencies
-# RUN pip install --no-cache-dir -r requirements.txt
+# Install system tools + Python dependencies
+RUN apk add --no-cache gcc g++ musl-dev libffi-dev make \
+    && pip install --no-cache-dir -r requirements.txt \
+    && rm -rf /root/.cache/pip
 
 RUN pip install --no-cache-dir -r requirements.txt \
-    && apk add --no-cache build-base \
-    && rm -rf /root/.cache/pip
+    && find / -type d -name '__pycache__' -exec rm -rf {} + || true
+
 
 # Copy the rest of your app
 COPY . .
 
-# Make sure your start script can run
+# Make start script executable
 RUN chmod +x start.sh
 
-# Expose port for FastAPI
+# Expose FastAPI port
 EXPOSE 8000
 
-# Run your app via start.sh
-CMD ["bash", "start.sh"]
+# Run app using sh (not bash)
+CMD ["sh", "start.sh"]
