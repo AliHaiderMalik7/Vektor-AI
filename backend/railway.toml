@@ -1,6 +1,9 @@
 # railway.toml
 [build]
-buildCommand = "pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt"
+# Command to install dependencies
+buildCommand = "pip install --no-cache-dir -r requirements.txt"
+
+# Folder that contains your app
 rootDirectory = "backend"
 
 [start]
