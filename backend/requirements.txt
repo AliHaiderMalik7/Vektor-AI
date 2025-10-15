@@ -20,3 +20,4 @@ pydantic[email]==2.11.7
 bcrypt==4.3.0
 python-jose==3.5.0
 alembic==1.17.0
+langchain-openai==0.3.35

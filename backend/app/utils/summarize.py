@@ -5,19 +5,19 @@ from app.database.crud_chat import get_messages_by_conversation_id
 
 
 def generate_and_update_summary(db: Session, conversation_id: int, model="gpt-4o-mini"):
-    # Step 1: Fetch messages
+    # Fetch messages
     messages = get_messages_by_conversation_id(db, conversation_id)
     if not messages:
         print(f"No messages found for conversation_id={conversation_id}")
         return None
 
-    # Step 2: Generate summary
+    # Generate summary
     summary = summarize_messages(messages, model=model)
     if not summary:
         print("❌ Failed to generate summary.")
         return None
 
-    # Step 3: Update conversation summary
+    # Update conversation summary
     success = update_conversation_summary(db, conversation_id, summary)
     if not success:
         print("⚠️ Could not update conversation summary in database.")
@@ -27,9 +27,9 @@ def generate_and_update_summary(db: Session, conversation_id: int, model="gpt-4o
 
 
 def summarize_messages(messages, model="gpt-4o-mini"):
-    """
+    '''
     Summarize the latest user messages (up to 10) using OpenAI API.
-    """
+    '''
     if not messages:
         return "No messages to summarize."
 

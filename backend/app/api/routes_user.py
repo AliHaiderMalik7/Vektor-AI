@@ -10,6 +10,8 @@ router = APIRouter()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+# Sign up
+
 @router.post("/signup")
 def signup(request: UserSignupRequest, db: Session = Depends(get_db)):
     # Check for existing email or username
@@ -32,6 +34,8 @@ def signup(request: UserSignupRequest, db: Session = Depends(get_db)):
     db.refresh(user)
 
     return {"status": 201, "message": "User created successfully", "user_id": user.id}
+
+# Login
 
 @router.post("/login", response_model=TokenResponse)
 def login(request: UserLoginRequest, db: Session = Depends(get_db)):

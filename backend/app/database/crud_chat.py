@@ -6,14 +6,6 @@ from typing import Optional, List
 # Conversation CRUD
 
 # crud_chat.py
-# def create_conversation(db: Session, title: str = None, user_id: int = None) -> models.Conversation:
-#     conv = models.Conversation(title=title or "New Conversation", user_id=user_id)
-#     db.add(conv)
-#     db.commit()
-#     db.refresh(conv)
-#     return conv
-
-# crud_chat.py
 def create_conversation(db: Session, title: str = None, user_id: int = None, summary: str = "") -> models.Conversation:
     """Create a new conversation"""
     conv = models.Conversation(

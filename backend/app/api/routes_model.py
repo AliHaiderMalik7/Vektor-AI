@@ -19,10 +19,10 @@ async def generate_response_stream(
     db: Session = Depends(get_db),
     token: str = Depends(oauth2_scheme),
 ):
-    print("\n----------------- 🧠 NEW LLM REQUEST -----------------")
+    print("NEW LLM REQUEST")
 
-    # --- Step 1: Verify token and user ---
-    print("🔐 Verifying user token...")
+    # Verify token and user
+    print("Verifying user token...")
     username = verify_token(token)
     user = db.query(models_chat.Users).filter(models_chat.Users.username == username).first()
     if not user:
@@ -41,12 +41,12 @@ async def generate_response_stream(
             detail="conversation_id is required from frontend"
         )
 
-    print(f"💬 Checking conversation ownership for ID: {conv_id}")
+    print(f"Checking conversation ownership for ID: {conv_id}")
     conversation = db.query(models_chat.Conversation).filter(
         models_chat.Conversation.id == conv_id
     ).first()
 
-    # --- Step 3: Verify ownership ---
+    # Verify ownership
     if not conversation:
         print(f"❌ Conversation not found with id={conv_id}")
         raise HTTPException(status_code=404, detail="Conversation not found")
@@ -57,8 +57,8 @@ async def generate_response_stream(
 
     print(f"✅ Conversation {conv_id} verified for user {user_id}")
 
-    # --- Step 4: Save new user message ---
-    print(f"💾 Saving new user message to conversation {conv_id}...")
+    # Save new user message
+    print(f"Saving new user message to conversation {conv_id}...")
     user_msg = crud_chat.create_message(
         db,
         conversation_id=conv_id,
@@ -68,8 +68,8 @@ async def generate_response_stream(
     db.commit()
     print(f"✅ User message saved (id={user_msg.id})")
 
-    # --- Step 5: Fetch recent 10 messages for context ---
-    print("📚 Fetching last 10 messages for conversation context...")
+    # Fetch recent 10 messages for context
+    print("Fetching last 10 messages for conversation context...")
     messages = (
         db.query(models_chat.Message)
         .filter(models_chat.Message.conversation_id == conv_id)
@@ -80,13 +80,13 @@ async def generate_response_stream(
     messages = list(reversed(messages))
     history = [{"role": m.role, "content": m.content} for m in messages]
 
-    print(f"🗂 Found {len(history)} context messages:")
+    print(f"Found {len(history)} context messages:")
     for m in history:
         print(f"   [{m['role']}] {m['content'][:70]}...")
 
-    # --- Step 6: Add stored summary if available ---
+    # Add stored summary if available 
     if conversation.summary:
-        print("🧩 Adding stored summary to model context...")
+        print("Adding stored summary to model context...")
         history.insert(0, {
             "role": "assistant",
             "content": (
@@ -99,8 +99,8 @@ async def generate_response_stream(
     else:
         print("⚠️ No summary found for this conversation yet.")
 
-    # --- Step 7: Stream model response ---
-    print("🚀 Sending user message + summary + history to LLM...")
+    # Stream model response
+    print("Sending user message + summary + history to LLM...")
     def response_generator():
         assistant_content = ""
         try:
@@ -116,9 +116,9 @@ async def generate_response_stream(
             print(f"❌ Error during LLM streaming: {e}")
             yield f"\n[Error: {str(e)}]"
 
-        # --- Save assistant reply ---
+        # Save assistant reply
         try:
-            print("💾 Saving assistant message...")
+            print("Saving assistant message...")
             crud_chat.create_message(
                 db,
                 conversation_id=conv_id,
@@ -130,8 +130,8 @@ async def generate_response_stream(
         except Exception as e:
             print(f"❌ Failed to save assistant message: {e}")
 
-        # --- Update summary after message ---
-        print("🧠 Regenerating summary for conversation...")
+        # Update summary after message
+        print("Regenerating summary for conversation...")
         try:
             summary = generate_and_update_summary(db, conv_id)
             if summary:
@@ -141,9 +141,9 @@ async def generate_response_stream(
         except Exception as e:
             print(f"❌ Error updating summary: {e}")
 
-        print("----------------- ✅ END OF LLM RESPONSE -----------------\n")
+        print("END OF LLM RESPONSE")
 
-    # --- Step 8: Stream response back ---
+    # Stream response back
     return StreamingResponse(
         response_generator(),
         media_type="text/event-stream",
