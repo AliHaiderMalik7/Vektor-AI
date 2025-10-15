@@ -1,10 +1,8 @@
 # railway.toml
 [build]
-# Command to install dependencies
+builder = "python"
 buildCommand = "pip install --no-cache-dir -r requirements.txt"
-
-# Folder that contains your app
-rootDirectory = "."
+rootDirectory = "backend"
 
 [start]
 # Command to start FastAPI
@@ -17,6 +15,6 @@ port = "$PORT"
 serviceType = "web"
 
 [env]
-# Environment variables for your backend
+# Environment variables for your backend    
 PYTHONUNBUFFERED = "1"
 PYTHONDONTWRITEBYTECODE = "1"
