@@ -1,3 +1,4 @@
+#!/bin/bash
 echo "🚀 Starting FastAPI app on Railway..."
 # Install dependencies
 pip install -r requirements.txt
