@@ -1,7 +1,8 @@
 # railway.toml
 [build]
-# Command to install dependencies
-buildCommand = "pip install --no-cache-dir -r requirements.txt"
+builder = "python:3.13"  # or python:3.13-slim
+buildCommand = "pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt"
+rootDirectory = "backend"
 
 # Folder that contains your app
 rootDirectory = "backend"
