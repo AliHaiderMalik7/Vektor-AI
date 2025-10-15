@@ -25,6 +25,7 @@ app.include_router(
     tags = ["LLM"]
 )
 
+# User routes
 app.include_router(
     routes_user.router,
     prefix = "/user",
