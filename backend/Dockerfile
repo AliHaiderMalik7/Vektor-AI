@@ -1,5 +1,5 @@
 # Use official Python image (small and fast)
-FROM python:3.11-slim
+FROM python:3.11-alpine
 
 # Set working directory
 WORKDIR /app
@@ -8,7 +8,11 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# RUN pip install --no-cache-dir -r requirements.txt
+
+RUN pip install --no-cache-dir -r requirements.txt \
+    && apk add --no-cache build-base \
+    && rm -rf /root/.cache/pip
 
 # Copy the rest of your app
 COPY . .
