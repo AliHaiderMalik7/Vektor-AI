@@ -44,6 +44,7 @@ function Home() {
              model: "gpt-4.1-mini",
              system_message: "You are a helpful travel assistant.",
              enable_web_search: true,
+             conversation_id:1
            }),
          }
        );
