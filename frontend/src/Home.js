@@ -34,7 +34,7 @@ function Home() {
        }
 
        const response = await fetch(
-         `${process.env.REACT_APP_BASE_URL}/model/generate`,
+         `${process.env.BASE_URL}/model/generate`,
          {
            method: "POST",
            headers,
