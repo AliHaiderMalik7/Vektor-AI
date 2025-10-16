@@ -1,8 +1,8 @@
-# app/core/config.py
 from pydantic_settings import BaseSettings
+import os
 
 class Settings(BaseSettings):
-    DATABASE_URL: str
+    DATABASE_URL: str = os.getenv("DATABASE_URL")
     OPENAI_API_KEY: str
     JWT_TOKEN_KEY: str
     ALGORITHM: str
