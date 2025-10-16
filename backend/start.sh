@@ -2,10 +2,8 @@
 set -e
 echo "🚀 Starting FastAPI app..."
 
-# Install heavy packages at runtime
-pip install --no-cache-dir torch opencv-python
-
-# Use Railway's port if available, otherwise 8000
+# Railway assigns PORT dynamically
 PORT=${PORT:-8000}
 
+# Run FastAPI
 uvicorn app.main:app --host 0.0.0.0 --port $PORT
