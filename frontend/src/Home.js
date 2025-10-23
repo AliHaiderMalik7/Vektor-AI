@@ -11,6 +11,7 @@ function Home() {
   const [messages, setMessages] = useState([]);
   const [currentPrompt, setCurrentPrompt] = useState("");
   const [loading, setLoading] = useState(false);
+  const [workspaceContent, setWorkspaceContent] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,7 +23,7 @@ function Home() {
       setLoading(true);
 
       const botMessageId = Date.now() + 1;
-      setMessages(prev => [...prev, { text: "", type: "bot", id: botMessageId }]);
+      setMessages(prev => [...prev, { text: "Creating your fitness plan...", type: "bot", id: botMessageId }]);
 
       try {
        const token = localStorage.getItem('token');
@@ -39,110 +40,27 @@ function Home() {
            method: "POST",
            headers,
            body: JSON.stringify({
-             stream: true,
              prompt: promptToSend,
-             model: "gpt-4.1-mini",
-             system_message: "You are a helpful travel assistant.",
-             enable_web_search: true,
-             conversation_id: 1,
+             model: "gpt-4o",
+             conversation_id: 11,
            }),
          }
        );
 
-       console.log("response", response);
-       
-
        if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-       const reader = response.body?.getReader();
-       console.log("reeader result", reader);
-       
-       if (!reader)
-         throw new Error("Streaming not supported or no body returned.");
+       const data = await response.json();
+       const responseText = data.response || "No response received.";
 
-       const decoder = new TextDecoder();
-       console.log("decoder", decoder);
-       
-       let buffer = "";
-       let hasStreamed = false;
-       let appendPromise = Promise.resolve();
-       let currentBotText = '';
+       setMessages((prev) =>
+         prev.map((msg) =>
+           msg.id === botMessageId
+             ? { ...msg, text: responseText }
+             : msg
+         )
+       );
 
-       while (true) {
-         const { done, value } = await reader.read();
-         console.log("done and val", done,value);
-         console.log("Decoded chunk:", decoder.decode(value));
-
-         if (done) break;
-
-         hasStreamed = true;
-         buffer += decoder.decode(value, { stream: true });
-
-         const lines = buffer.split("\n");
-         buffer = lines.pop();
-        console.log("lines", lines);
-        
-
-
-         for (const line of lines) {
-           if (line.startsWith("data: ")) {
-             const jsonStr = line.slice(6).trim();
-             if (jsonStr && jsonStr !== "[DONE]") {
-               // Treat jsonStr as plain text result
-               const result = jsonStr;
-               // Chain the appending to ensure sequential display
-               appendPromise = appendPromise.then(async () => {
-                 // Add newline if result starts with bullet or number
-                 if (result.trim().match(/^[-*]\s|^[0-9]+\./) && currentBotText && !currentBotText.endsWith('\n')) {
-                   currentBotText += '\n';
-                   setMessages((prev) =>
-                     prev.map((msg) =>
-                       msg.id === botMessageId
-                         ? { ...msg, text: msg.text + '\n' }
-                         : msg
-                     )
-                   );
-                   await new Promise(resolve => setTimeout(resolve, 50)); // delay for newline
-                 }
-                 // Add space if needed before appending (if current text doesn't end with space and result starts with letter)
-                 if (currentBotText && !currentBotText.endsWith(' ') && !currentBotText.endsWith('\n') && result.length > 0 && /[a-zA-Z]/.test(result[0])) {
-                   currentBotText += ' ';
-                   setMessages((prev) =>
-                     prev.map((msg) =>
-                       msg.id === botMessageId
-                         ? { ...msg, text: msg.text + ' ' }
-                         : msg
-                     )
-                   );
-                   await new Promise(resolve => setTimeout(resolve, 20)); // delay for space
-                 }
-                 for (let i = 0; i < result.length; i++) {
-                   currentBotText += result[i];
-                   setMessages((prev) =>
-                     prev.map((msg) =>
-                       msg.id === botMessageId
-                         ? { ...msg, text: msg.text + result[i] }
-                         : msg
-                     )
-                   );
-                   await new Promise(resolve => setTimeout(resolve, 20)); // 50ms delay per character
-                 }
-               });
-             }
-           }
-         }
-       }
-
-       // fallback if nothing streamed
-       if (!hasStreamed) {
-         setMessages((prev) =>
-           prev.map((msg) =>
-             msg.id === botMessageId
-               ? { ...msg, text: "No streamed data received from server." }
-               : msg
-           )
-         );
-       }
+       setWorkspaceContent(data);
 
       } catch (error) {
         const errorMessage = { text: 'Error: Network issue - please try again', type: "bot", id: Date.now() + 1 };
@@ -189,7 +107,7 @@ function Home() {
             handleSubmit={handleSubmit}
             loading={loading}
           />
-          <WorkspacePanel />
+          <WorkspacePanel workspaceContent={workspaceContent} />
         </div>
       )}
     </div>
