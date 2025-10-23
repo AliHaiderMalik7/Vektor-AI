@@ -97,7 +97,7 @@ function Header() {
           >
             <IconPlus size={20} />
           </ActionIcon>
-          <Menu
+          {/* <Menu
             shadow="md"
             width={200}
             styles={(t) => ({
@@ -129,7 +129,7 @@ function Header() {
               <Menu.Item>GPT-4.0</Menu.Item>
               <Menu.Item>DeepSeek</Menu.Item>
             </Menu.Dropdown>
-          </Menu>
+          </Menu> */}
         </Group>
       </Group>
 
