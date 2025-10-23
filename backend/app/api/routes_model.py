@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from app.services.llm_service import LLMService
 from app.models.request_models import LLMRequest
@@ -8,6 +7,7 @@ from app.database.db_session import get_db
 from app.utils.summarize import generate_and_update_summary
 from app.utils.auth import oauth2_scheme, verify_token
 from typing import Optional
+import json
 
 router = APIRouter()
 llm_service = LLMService()
@@ -32,7 +32,7 @@ async def generate_response_stream(
     user_id = user.id
     print(f"✅ Authenticated user: {user.username} (id={user_id})")
 
-    # --- Step 2: Get conversation_id from frontend ---
+    # Get conversation_id from frontend
     conv_id: Optional[int] = getattr(request, "conversation_id", None)
     if not conv_id:
         print("❌ No conversation_id provided from frontend")
@@ -51,9 +51,9 @@ async def generate_response_stream(
         print(f"❌ Conversation not found with id={conv_id}")
         raise HTTPException(status_code=404, detail="Conversation not found")
 
-    if conversation.user_id != user_id:
-        print(f"🚫 User {user_id} is not the owner of conversation {conv_id}")
-        raise HTTPException(status_code=403, detail="Not authorized for this conversation")
+    # if conversation.user_id != user_id:
+    #     print(f"🚫 User {user_id} is not the owner of conversation {conv_id}")
+    #     raise HTTPException(status_code=403, detail="Not authorized for this conversation")
 
     print(f"✅ Conversation {conv_id} verified for user {user_id}")
 
@@ -98,54 +98,47 @@ async def generate_response_stream(
         print("✅ Summary added to context.")
     else:
         print("⚠️ No summary found for this conversation yet.")
-
-    # Stream model response
-    print("Sending user message + summary + history to LLM...")
-    def response_generator():
-        assistant_content = ""
-        try:
-            for chunk in llm_service.generate_chatgpt_response(
-                prompt=request.prompt,
-                history=history,
-                model=request.model,
-                stream=True
-            ):
-                assistant_content += chunk
-                yield chunk
-        except Exception as e:
-            print(f"❌ Error during LLM streaming: {e}")
-            yield f"\n[Error: {str(e)}]"
-
-        # Save assistant reply
-        try:
-            print("Saving assistant message...")
-            crud_chat.create_message(
-                db,
-                conversation_id=conv_id,
-                content=assistant_content,
-                role="assistant"
-            )
-            db.commit()
-            print(f"✅ Assistant message saved for conversation {conv_id}")
-        except Exception as e:
-            print(f"❌ Failed to save assistant message: {e}")
-
-        # Update summary after message
-        print("Regenerating summary for conversation...")
-        try:
-            summary = generate_and_update_summary(db, conv_id)
-            if summary:
-                print(f"✅ Summary updated for conversation {conv_id}")
-            else:
-                print(f"⚠️ No summary generated for conversation {conv_id}")
-        except Exception as e:
-            print(f"❌ Error updating summary: {e}")
-
-        print("END OF LLM RESPONSE")
-
-    # Stream response back
-    return StreamingResponse(
-        response_generator(),
-        media_type="text/event-stream",
-        headers={"X-Conversation-Id": str(conv_id)},
+    
+    # GET LLM JSON Response
+    assistant_content = llm_service.generate_chatgpt_response(
+        prompt = request.prompt,
+        history = history,
+        model = request.model,
+        weight_value=request.weight_value,
+        weight_unit=request.weight_unit,
+        height_value=request.height_value,
+        height_unit=request.height_unit,
     )
+
+    # Parse assistant content to JSON (if it’s valid JSON)
+    try:
+        parsed_response = json.loads(assistant_content)
+    except Exception as e:
+        print(f"⚠️ Response was not valid JSON: {e}")
+        parsed_response = {"text": assistant_content['text']}
+
+    # Save Assistant Reply
+    crud_chat.create_message(
+        db,
+        conversation_id = conv_id,
+        # content = assistant_content,
+        content = json.dumps(parsed_response),
+        role = "assistant"
+    )
+    db.commit()
+
+    # Update Conversation Summary
+    try:
+        summary = generate_and_update_summary(db, conv_id)
+        if summary:
+            print(f"✅ Summary updated for conversation {conv_id}")
+        else:
+            print(f"⚠️ No summary generated for conversation {conv_id}")
+    except Exception as e:
+        print(f"❌ Error updating summary: {e}")
+
+    # Return final response
+    return {
+        "conversation_id": conv_id,
+        "response": parsed_response,
+    }

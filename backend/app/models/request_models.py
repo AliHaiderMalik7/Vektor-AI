@@ -12,12 +12,12 @@ class LLMRequest(BaseModel):
     )
 
     model: str = Field(
-        default="gpt-4o-mini",
+        default="gpt-4o",
         description="Model to use for generation"
     )
 
     system_message: str = Field(
-        default="You are a helpful assistant.",
+        default="You are a helpful fitness assistant.",
         description="System message for the LLM"
     )
 
@@ -25,6 +25,14 @@ class LLMRequest(BaseModel):
         default=False,
         description="Enable web search capability"
     )
+
+    # Fitness-related inputs
+    weight_value: Optional[float] = None
+    weight_unit: Optional[str] = None
+    height_value: Optional[float] = None
+    height_unit: Optional[str] = None
+    height_extra_inches: Optional[float] = None
+    # metadata for chat persistence
 
     user_id: Optional[int] = Field(
         default=None,

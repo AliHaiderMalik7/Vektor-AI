@@ -4,7 +4,7 @@ from app.database.models_chat import Conversation
 from app.database.crud_chat import get_messages_by_conversation_id
 
 
-def generate_and_update_summary(db: Session, conversation_id: int, model="gpt-4o-mini"):
+def generate_and_update_summary(db: Session, conversation_id: int, model="gpt-4o"):
     # Fetch messages
     messages = get_messages_by_conversation_id(db, conversation_id)
     if not messages:
@@ -26,7 +26,7 @@ def generate_and_update_summary(db: Session, conversation_id: int, model="gpt-4o
     return summary
 
 
-def summarize_messages(messages, model="gpt-4o-mini"):
+def summarize_messages(messages, model="gpt-4o"):
     '''
     Summarize the latest user messages (up to 10) using OpenAI API.
     '''
