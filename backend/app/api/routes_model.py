@@ -112,10 +112,22 @@ async def generate_response_stream(
 
     # Parse assistant content to JSON (if it’s valid JSON)
     try:
-        parsed_response = json.loads(assistant_content)
+        if isinstance(assistant_content, dict):
+            parsed_response = assistant_content
+            print("✅ assistant_content is already a dict.")
+        elif isinstance(assistant_content, str):
+            try:
+                parsed_response = json.loads(assistant_content)
+                print("✅ Parsed valid JSON string from assistant.")
+            except json.JSONDecodeError:
+                print("⚠️ assistant_content is plain text, wrapping it in {'text': ...}")
+                parsed_response = {"text": assistant_content}
+        else:
+            print("⚠️ assistant_content is of unknown type, wrapping safely.")
+            parsed_response = {"text": str(assistant_content)}
     except Exception as e:
-        print(f"⚠️ Response was not valid JSON: {e}")
-        parsed_response = {"text": assistant_content['text']}
+        print(f"❌ Error parsing assistant_content: {e}")
+        parsed_response = {"error": f"Failed to parse response: {str(e)}"}
 
     # Save Assistant Reply
     crud_chat.create_message(

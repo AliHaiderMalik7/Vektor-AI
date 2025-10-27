@@ -12,7 +12,7 @@ llm_service = LLMService()
 
 app = FastAPI(
     title="AI Chatbot API",
-    description="LLM-powered chatbot with flight info, voice, and multi-model support",
+    description="LLM-powered chatbot for Fitness Assistant.",
     version="1.0.0"
 )
 
@@ -45,4 +45,4 @@ app.add_middleware(
 
 @app.get("/")
 def root():
-    return {"message": "Welcome to the AI Chatbot!"}
+    return {"message": "Welcome to the Fitness AI Chatbot!"}

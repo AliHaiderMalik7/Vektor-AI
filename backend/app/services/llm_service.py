@@ -1,136 +1,3 @@
-# from openai import OpenAI
-# import os, json, logging
-# from dotenv import load_dotenv
-# from typing import Generator, List, Dict, Optional
-# from app.utils.helpers import stream_llm_response
-# from app.utils.system_message_fitness import FITNESS_SYSTEM_MESSAGE
-# from app.utils.unit_normalisation_and_bmi import normalize_and_bmi
-
-# logger = logging.getLogger(__name__)
-# load_dotenv()
-
-# class LLMService:
-#     def __init__(self):
-#         api_key = os.getenv("OPENAI_API_KEY")
-#         if not api_key:
-#             raise ValueError("OPENAI_API_KEY not found in environment variables")
-#         self.client = OpenAI(api_key=api_key)
-        
-#     def generate_chatgpt_response(
-#             self,
-#             prompt: str,
-#             model: str = "gpt-4o",
-#             history: Optional[List[Dict[str, str]]] = None,
-#             system_message: str = FITNESS_SYSTEM_MESSAGE,
-#             max_tokens: int = 500,
-#             temperature: float = 0.7,
-#             enable_web_search: bool = False,
-#             weight_value: Optional[float] = None,
-#             weight_unit: Optional[str] = None,
-#             height_value: Optional[float] = None,
-#             height_unit: Optional[str] = None,
-#             height_extra_inches: Optional[float] = None,
-#             ) -> str:
-#         try:
-#             logger.info(f"Generating response (model={model}, web_search = {enable_web_search})")
-
-#             # Build base message sequence
-#             messages = [{"role": "system", "content": system_message}]
-#             if history:
-#                 messages.extend(history)
-
-#             # If weight and height are provided, calculate BMI
-#             bmi_context = {}
-#             if weight_value and height_value:
-#                 try:
-#                     bmi_context = normalize_and_bmi(
-#                         weight_value,
-#                         weight_unit or "kg",
-#                         height_value,
-#                         height_unit or "cm",
-#                         height_extra_inches
-#                         )
-#                     logger.info(f"BMI context: {bmi_context}")
-#                 except Exception as e:
-#                     logger.warning(f"BMI normalization failed: {e}")
-
-#             # Add context into prompt
-#             if bmi_context:
-#                 prompt = (
-#                     f"{prompt}\n\nSystem-provided metrics:\n"
-#                     f"- Normalized Weight: {bmi_context['normalized_weight_kg']} kg\n"
-#                     f"- Normalized Height: {bmi_context['normalized_height_cm']} cm\n"
-#                     f"- BMI: {bmi_context['bmi']}\n"
-#                     f"- BMI Category: {bmi_context['bmi_category']}"
-#                     )
-
-#             messages.append({"role": "user", "content": prompt})
-
-#             # Call OpenAI
-#             response = self.client.responses.create(
-#                 model=model,
-#                 input=messages,
-#                 temperature=temperature,
-#                 max_output_tokens=max_tokens,
-#                 text={
-#                     "format": {
-#                         "type": "json_schema",
-#                         "name": "fitness_plan_schema",
-#                         "schema": {
-#                             "strict": True,
-#                             "type": "object",
-#                             "additionalProperties": False,
-#                             "properties": {
-#                                 "title": {"type": "string"},
-#                                 "summary": {"type": "string"},
-#                                 "bmi": {"type": "number"},
-#                                 "plans": {
-#                                     "type": "array",
-#                                     "items": {
-#                                         "type": "object",
-#                                         "additionalProperties": False,
-#                                         "properties": {
-#                                             "week": {"type": "string"},
-#                                             "exercises": {
-#                                                 "type": "array",
-#                                                 "items": {
-#                                                     "type": "object",
-#                                                     "additionalProperties": False,
-#                                                     "properties": {
-#                                                         "name": {"type": "string"},
-#                                                         "sets": {"type": "integer"},
-#                                                         "reps": {"type": "string"},
-#                                                         "description": {"type": "string"},
-#                                                         "image": {"type": "string"},
-#                                                         "gif": {"type": "string"}
-#                                                         },
-#                                                         "required": ["name", "sets", "reps", "description", "image", "gif"]
-#                                                     }
-#                                                 }
-#                                             },
-#                                             "required": ["week", "exercises"]
-#                                         }
-#                                     }
-#                                 },
-#                                 "required": ["title", "summary", "bmi", "plans"]
-#                             } 
-#                         }
-#                     }
-#                 )
-
-#             if hasattr(response, "output_parsed") and response.output_parsed:
-#                 reply = response.output_parsed
-#                 logger.info("✅ Fitness planner response generated successfully.")
-#                 return reply
-#             else:
-#                 return '{"error": "No response generated."}'
-
-#         except Exception as e:
-#             logger.error(f"OpenAI API error: {str(e)}")
-#             raise Exception(f"LLM service error: {str(e)}")
-
-
-
 from openai import OpenAI
 import os, json, logging, re, traceback
 from dotenv import load_dotenv
@@ -168,13 +35,23 @@ class LLMService:
     def _try_parse_json(self, text: str) -> Optional[Any]:
         if text is None:
             return None
-        cleaned = self._clean_json_response(text)
-        if not cleaned:
+        text = re.sub(r"```(?:json)?\s*", "", text)
+        text = re.sub(r"\s*```$", "", text).strip()
+
+        # Match all JSON objects
+        matches = re.findall(r'(\{[\s\S]*?\})(?=\{|\Z)', text)
+        parsed_list = []
+        for m in matches:
+            try:
+                parsed_list.append(json.loads(m))
+            except json.JSONDecodeError:
+                continue
+        if not parsed_list:
             return None
-        try:
-            return json.loads(cleaned)
-        except json.JSONDecodeError:
-            return None
+        if len(parsed_list) == 1:
+            return parsed_list[0]
+        return parsed_list  # Return all JSON objects as a list
+
 
     def generate_chatgpt_response(
         self,
@@ -182,7 +59,7 @@ class LLMService:
         model: str = "gpt-4o",
         history: Optional[List[Dict[str, str]]] = None,
         system_message: str = FITNESS_SYSTEM_MESSAGE,
-        max_tokens: int = 500,
+        max_tokens: int = 1000,
         temperature: float = 0.7,
         enable_web_search: bool = False,
         weight_value: Optional[float] = None,
@@ -237,7 +114,7 @@ class LLMService:
                 max_output_tokens=max_tokens,
             )
 
-            # === 1) Prefer output_parsed if available (structured JSON from server) ===
+            # Prefer output_parsed if available (structured JSON from server) ===
             try:
                 if hasattr(response, "output_parsed") and response.output_parsed:
                     parsed = response.output_parsed
@@ -258,22 +135,20 @@ class LLMService:
                 # don't fail entirely here — fall back to text extraction
                 logger.debug("output_parsed check failed, falling back to text extraction", exc_info=True)
 
-            # === 2) Try response.output_text (some SDKs provide this property) ===
+            # Try response.output_text (some SDKs provide this property) ===
             try:
                 if hasattr(response, "output_text") and response.output_text:
                     # output_text should already be a plain string
                     parsed = self._try_parse_json(response.output_text)
                     if parsed is not None:
                         return parsed
-                    return {"text": response.output_text}
+                    # return {"text": response.output_text}
             except Exception:
                 logger.debug("response.output_text check failed; continuing", exc_info=True)
 
-            # === 3) Fall back to iterating response.output content blocks ===
+            # Fall back to iterating response.output content blocks ===
             try:
                 if hasattr(response, "output") and response.output:
-                    # response.output is usually a list; take first meaningful block(s)
-                    # iterate over each block to find output_text or textual content
                     for block in response.output:
                         # block might be a dict or a Pydantic model
                         content_list = None
