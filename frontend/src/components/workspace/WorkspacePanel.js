@@ -40,7 +40,7 @@ function FitnessPlanCard({ planData, theme }) {
             </ThemeIcon>
             {planData.title}
           </Title>
-          <Text size="md" color="dimmed">{planData.summary}</Text>
+          <Text size="md" style={{ color: theme.colorScheme === 'dark' ? theme.colors.gray[3] : theme.colors.gray[7] }}>{planData.summary}</Text>
         </div>
         {planData.bmi && (
           <div style={{ textAlign: 'center' }}>
@@ -54,32 +54,32 @@ function FitnessPlanCard({ planData, theme }) {
                 </Center>
               }
             />
-            <Text size="xs" color="dimmed" mt="xs">BMI</Text>
+            <Text size="xs" style={{ color: theme.colorScheme === 'dark' ? theme.colors.gray[4] : theme.colors.gray[6] }} mt="xs">BMI</Text>
           </div>
         )}
       </Group>
 
       {/* Stats Cards */}
       <Group grow mb="xl" style={{ position: 'relative', zIndex: 1 }}>
-        <Card shadow="sm" p="md" radius="md" style={{ backgroundColor: theme.other.surface }}>
+        <Card shadow="sm" p="md" radius="md" style={{ backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.other.surface }}>
           <Group>
             <ThemeIcon color="blue" size="lg" radius="xl" variant="light">
               <IconCalendar size={20} />
             </ThemeIcon>
             <div>
               <Text size="lg" weight={700} style={{ color: theme.other.text }}>{planData.plans.length}</Text>
-              <Text size="sm" color="dimmed">Days</Text>
+              <Text size="sm" style={{ color: theme.colorScheme === 'dark' ? theme.colors.gray[4] : theme.colors.gray[6] }}>Days</Text>
             </div>
           </Group>
         </Card>
-        <Card shadow="sm" p="md" radius="md" style={{ backgroundColor: theme.other.surface }}>
+        <Card shadow="sm" p="md" radius="md" style={{ backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.other.surface }}>
           <Group>
             <ThemeIcon color="green" size="lg" radius="xl" variant="light">
               <IconTarget size={20} />
             </ThemeIcon>
             <div>
               <Text size="lg" weight={700} style={{ color: theme.other.text }}>{totalExercises}</Text>
-              <Text size="sm" color="dimmed">Exercises</Text>
+              <Text size="sm" style={{ color: theme.colorScheme === 'dark' ? theme.colors.gray[4] : theme.colors.gray[6] }}>Exercises</Text>
             </div>
           </Group>
         </Card>
@@ -90,7 +90,7 @@ function FitnessPlanCard({ planData, theme }) {
             </ThemeIcon>
             <div>
               <Text size="lg" weight={700} style={{ color: theme.other.text }}>{totalSets}</Text>
-              <Text size="sm" color="dimmed">Total Sets</Text>
+              <Text size="sm" style={{ color: theme.colorScheme === 'dark' ? theme.colors.gray[4] : theme.colors.gray[6] }}>Total Sets</Text>
             </div>
           </Group>
         </Card>
