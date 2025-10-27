@@ -4,20 +4,46 @@ import { IconUser } from "@tabler/icons-react";
 function parseText(text) {
   if (!text) return "";
 
-  // Replace markdown-style bold (**text** or __text__)
-  let html = text.replace(/(\*\*|__)(.*?)\1/g, "<strong>$2</strong>");
+  // Handle case where text is an object (e.g., { missing_info: "..." })
+  let textString = "";
+  if (typeof text === "object") {
+    if (text.missing_info) {
+      textString = text.missing_info;
+    } else if (text.response) {
+      textString = text.response;
+    } else {
+      textString = JSON.stringify(text);
+    }
+  } else {
+    textString = String(text);
+  }
 
-  // Replace *text* with <em>text</em> (italic)
-  html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
+  try {
+    // Replace markdown-style bold (**text**)
+    let html = textString.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
 
-  // Replace newlines with <br>
-  html = html.replace(/\n/g, "<br/>");
+    // Replace markdown-style bold (__text__)
+    html = html.replace(/__(.*?)__/g, "<strong>$1</strong>");
 
-  return html;
+    // Replace *text* with <em>text</em> (italic), but avoid matching ** or __
+    html = html.replace(/(?<!\*)\*(?!\*)(.*?)(?<!\*)\*(?!\*)/g, "<em>$1</em>");
+
+    // Replace newlines with <br>
+    html = html.replace(/\n/g, "<br/>");
+
+    return html;
+  } catch (error) {
+    console.error("Error parsing text:", error);
+    // Fallback: just replace newlines
+    return textString.replace(/\n/g, "<br/>");
+  }
 }
 
 function MessageList({ messages }) {
   const theme = useMantineTheme();
+
+  console.log("messages", messages);
+  
 
   return (
     <div
@@ -26,7 +52,7 @@ function MessageList({ messages }) {
         flexDirection: "column",
         gap: "12px",
       }}>
-      {messages.map((msg) => (
+      {messages?.map((msg) => (
         <Card
           key={msg.id}
           shadow="sm"
