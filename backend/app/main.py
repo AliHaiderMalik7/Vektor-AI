@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from app.api import routes_model, routes_user
 from app.core.config import settings
 from app.services.llm_service import LLMService
@@ -15,6 +16,13 @@ app = FastAPI(
     description="LLM-powered chatbot for Fitness Assistant.",
     version="1.0.0"
 )
+
+# Serve local static files (images, GIFs, etc.)
+app.mount(
+    "/static",
+    StaticFiles(directory="app/static"),
+    name="static"
+    )
 
 # Routes
 

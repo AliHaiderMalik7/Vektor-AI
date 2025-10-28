@@ -33,6 +33,11 @@ backend/
 │   │   ├── request_models.py        # Input schemas (Requests)
 │   │   └── response_models.py       # Output schemas (Responses)
 │   │
+│   ├── schema/                    
+│   │   ├── __init__.py
+│   │   ├── exercise_media_app.py 
+│   │   └── fitness_schema.py      
+│   │
 │   ├── utils/                       # Helpers, small functions, external tools
 │   │   ├── __init__.py
 │   │   ├── helpers.py               # Generic utility functions
