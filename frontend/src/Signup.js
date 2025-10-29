@@ -30,10 +30,11 @@ function Signup() {
           />
           <div className="image-content">
             <Text size="xl" weight={600} color="white" mb="sm">
-              Discover Your Next Adventure
+              Welcome Back, Champion
             </Text>
             <Text size="sm" color="white" opacity={0.9}>
-              Join thousands of travelers exploring hidden gems around the world
+              Pick up where you left off and crush your next workout with
+              AI-powered coaching
             </Text>
           </div>
         </div>

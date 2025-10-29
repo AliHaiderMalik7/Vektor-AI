@@ -162,158 +162,162 @@ function InitialInput({
           justifyContent: "center",
           padding: "40px 20px",
         }}>
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "600px",
-          textAlign: "center",
-        }}>
-        {/* 🏔️ Title & Description */}
         <div
           style={{
-            marginBottom: "28px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "12px",
+            width: "100%",
+            maxWidth: "600px",
+            textAlign: "center",
           }}>
-          <Title
-            order={2}
+          {/* 🏔️ Title & Description */}
+          <div
             style={{
-              color: theme.colorScheme === "light" ? "#2c3e50" : "#ffffff",
-              fontWeight: 700,
-              fontSize: "2rem",
-              lineHeight: 1.2,
-              margin: 0,
+              marginBottom: "28px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "12px",
             }}>
-            Discover Your Next Adventure
-          </Title>
-          <Text
-            size="md"
-            style={{
-              color: theme.colorScheme === "light" ? "#6c757d" : "#adb5bd",
-              fontWeight: 400,
-              fontSize: "1rem",
-              lineHeight: 1.5,
-              maxWidth: "480px",
-            }}>
-            Enter your travel prompt below to get personalized recommendations.
-          </Text>
-        </div>
-
-        {/* 📝 Input Form */}
-        <form onSubmit={handleSubmit}>
-          {/* Textarea with embedded mic icon */}
-          <div style={{ position: "relative", marginBottom: "20px" }}>
-            <Textarea
-              value={currentPrompt + interimTranscript}
-              onChange={(e) => setCurrentPrompt(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmit(e);
-                }
-              }}
-              placeholder={
-                isRecording ? "Listening..." : "e.g., Plan a 7-day trip to Japan in spring"
-              }
-              size="md"
-              minRows={4}
-              disabled={isRecording}
-              styles={{
-                input: {
-                  fontSize: "15px",
-                  fontWeight: 500,
-                  backgroundColor: theme.other.inputBackground,
-                  color: theme.other.text,
-                  minHeight: "120px",
-                  border:
-                    theme.colorScheme === "light"
-                      ? "2px solid #e1e5e9"
-                      : `1px solid ${theme.other.border}`,
-                  borderRadius: "12px",
-                  boxShadow:
-                    theme.colorScheme === "light"
-                      ? "0 4px 12px rgba(0,0,0,0.1), inset 0 1px 2px rgba(255,255,255,0.8)"
-                      : "none",
-                  transition: "all 0.3s ease",
-                  paddingRight: "50px", // space for mic icon
-                  "&::-webkit-scrollbar": {
-                    width: "8px",
-                  },
-                  "&::-webkit-scrollbar-thumb": {
-                    backgroundColor:
-                      theme.colorScheme === "dark"
-                        ? theme.colors.dark[4]
-                        : "#c0c0c0",
-                    borderRadius: "10px",
-                  },
-                  "&:focus": {
-                    borderColor: theme.colors.blue[5],
-                    boxShadow:
-                      theme.colorScheme === "light"
-                        ? "0 0 0 3px rgba(59, 130, 246, 0.1)"
-                        : "0 0 0 3px rgba(59, 130, 246, 0.2)",
-                  },
-                },
-              }}
-            />
-
-            {/* 🎤 Mic icon inside textarea */}
-            <ActionIcon
-              onClick={() => {
-                if (recognitionRef.current) {
-                  setIsRecording((prev) => !prev);
-                  setIsModalOpen((prev) => !prev);
-                } else {
-                  alert("Speech recognition is not supported in this browser.");
-                }
-              }}
-              variant="filled"
-              size="lg"
+            <Title
+              order={2}
               style={{
-                position: "absolute",
-                bottom: "12px",
-                right: "12px",
-                background: isRecording
-                  ? "linear-gradient(135deg, #ff4444, #ff6b6b)"
-                  : gradient,
-                boxShadow: isRecording
-                  ? "0 0 12px rgba(255, 68, 68, 0.6)"
-                  : "0 3px 10px rgba(0,0,0,0.15)",
-                transition: "all 0.3s ease",
-                borderRadius: "12px",
-                width: "40px",
-                height: "40px",
+                color: theme.colorScheme === "light" ? "#2c3e50" : "#ffffff",
+                fontWeight: 700,
+                fontSize: "2rem",
+                lineHeight: 1.2,
+                margin: 0,
               }}>
-              {isRecording ? (
-                <IconMicrophoneOff size={20} />
-              ) : (
-                <IconMicrophone size={20} />
-              )}
-            </ActionIcon>
+              Push Beyond Your Limits{" "}
+            </Title>
+            <Text
+              size="md"
+              style={{
+                color: theme.colorScheme === "light" ? "#6c757d" : "#adb5bd",
+                fontWeight: 400,
+                fontSize: "1rem",
+                lineHeight: 1.5,
+                maxWidth: "480px",
+              }}>
+              Enter your fitness goal below to get personalized AI workouts.{" "}
+            </Text>
           </div>
 
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            size="md"
-            loading={loading}
-            disabled={loading}
-            style={{
-              fontWeight: 600,
-              fontSize: "15px",
-              background: theme.other.gradient,
-              padding: "12px 24px",
-              borderRadius: "10px",
-              width: "100%",
-            }}>
-            {loading ? "Generating..." : "Generate Travel Plan"}
-          </Button>
-        </form>
+          {/* 📝 Input Form */}
+          <form onSubmit={handleSubmit}>
+            {/* Textarea with embedded mic icon */}
+            <div style={{ position: "relative", marginBottom: "20px" }}>
+              <Textarea
+                value={currentPrompt + interimTranscript}
+                onChange={(e) => setCurrentPrompt(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
+                placeholder={
+                  isRecording
+                    ? "Listening..."
+                    : "Generate a personalized full-body workout routine using AI"
+                }
+                size="md"
+                minRows={4}
+                disabled={isRecording}
+                styles={{
+                  input: {
+                    fontSize: "15px",
+                    fontWeight: 500,
+                    backgroundColor: theme.other.inputBackground,
+                    color: theme.other.text,
+                    minHeight: "120px",
+                    border:
+                      theme.colorScheme === "light"
+                        ? "2px solid #e1e5e9"
+                        : `1px solid ${theme.other.border}`,
+                    borderRadius: "12px",
+                    boxShadow:
+                      theme.colorScheme === "light"
+                        ? "0 4px 12px rgba(0,0,0,0.1), inset 0 1px 2px rgba(255,255,255,0.8)"
+                        : "none",
+                    transition: "all 0.3s ease",
+                    paddingRight: "50px", // space for mic icon
+                    "&::-webkit-scrollbar": {
+                      width: "8px",
+                    },
+                    "&::-webkit-scrollbar-thumb": {
+                      backgroundColor:
+                        theme.colorScheme === "dark"
+                          ? theme.colors.dark[4]
+                          : "#c0c0c0",
+                      borderRadius: "10px",
+                    },
+                    "&:focus": {
+                      borderColor: theme.colors.blue[5],
+                      boxShadow:
+                        theme.colorScheme === "light"
+                          ? "0 0 0 3px rgba(59, 130, 246, 0.1)"
+                          : "0 0 0 3px rgba(59, 130, 246, 0.2)",
+                    },
+                  },
+                }}
+              />
+
+              {/* 🎤 Mic icon inside textarea */}
+              <ActionIcon
+                onClick={() => {
+                  if (recognitionRef.current) {
+                    setIsRecording((prev) => !prev);
+                    setIsModalOpen((prev) => !prev);
+                  } else {
+                    alert(
+                      "Speech recognition is not supported in this browser."
+                    );
+                  }
+                }}
+                variant="filled"
+                size="lg"
+                style={{
+                  position: "absolute",
+                  bottom: "12px",
+                  right: "12px",
+                  background: isRecording
+                    ? "linear-gradient(135deg, #ff4444, #ff6b6b)"
+                    : gradient,
+                  boxShadow: isRecording
+                    ? "0 0 12px rgba(255, 68, 68, 0.6)"
+                    : "0 3px 10px rgba(0,0,0,0.15)",
+                  transition: "all 0.3s ease",
+                  borderRadius: "12px",
+                  width: "40px",
+                  height: "40px",
+                }}>
+                {isRecording ? (
+                  <IconMicrophoneOff size={20} />
+                ) : (
+                  <IconMicrophone size={20} />
+                )}
+              </ActionIcon>
+            </div>
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              size="md"
+              loading={loading}
+              disabled={loading}
+              style={{
+                fontWeight: 600,
+                fontSize: "15px",
+                background: theme.other.gradient,
+                padding: "12px 24px",
+                borderRadius: "10px",
+                width: "100%",
+              }}>
+              {loading ? "Generating..." : "Generate Fitness Plan"}
+            </Button>
+          </form>
+        </div>
       </div>
-    </div>
     </>
   );
 }
