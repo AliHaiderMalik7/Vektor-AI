@@ -1,6 +1,6 @@
 EXERCISE_MEDIA_MAP = {
     "push-ups": {
-        "gif": "static/gifs/pushups.gif"
+        "gif": "/static/gifs/pushups.gif"
     },
 
     "plank": {
