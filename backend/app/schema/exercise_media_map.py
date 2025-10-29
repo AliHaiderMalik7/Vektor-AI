@@ -25,6 +25,34 @@ EXERCISE_MEDIA_MAP = {
 
     "bodyweight-squat": {
         "gif": "/static/gifs/squat.gif"
-    }
+    },
+
+    "jumping-jack": {
+        "gif": "/static/gifs/jumping_jack.gif"
+    },
+
+    "jumping-rope":{
+        "gif": "/static/gifs/jumping_rope.gif"
+    },
+
+    "burpees": {
+        "gif": "/static/gifs/burpees.gif"
+    },
+
+    "russian-twist":{
+        "gif": "/static/gifs/russian_twist.gif"
+    },
+
+    "walking":{
+        "gif": "/static/gifs/walking.gif"
+    },
+
+    "running":{
+        "gif": "/static/gifs/running.gif"
+    },
+
+    "climbing-stairs":{
+        "gif": "/static/gifs/climbing_stairs.gif"
+    },
 
 }

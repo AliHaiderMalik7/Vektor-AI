@@ -5,8 +5,8 @@ from app.models.request_models import LLMRequest
 from app.database import crud_chat, models_chat
 from app.database.db_session import get_db
 from app.utils.summarize import generate_and_update_summary
-from app.schema.exercise_media_map import EXERCISE_MEDIA_MAP
 from app.utils.auth import oauth2_scheme, verify_token
+from app.utils.attach_media import attach_media_to_plan
 from typing import Optional
 import json, re
 
@@ -98,40 +98,7 @@ async def generate_response_stream(
         parsed_response = {"error": f"Failed to parse response: {str(e)}"}
 
     # Attach exercise media to each exercise in the plan
-    try:
-        if isinstance(parsed_response, dict) and "plans" in parsed_response:
-            for plan in parsed_response["plans"]:
-                exercises = plan.get("exercises", [])
-                for ex in exercises:
-                    ex_name = ex.get("name", "").lower().strip()
-
-                    def normalize(name: str):
-                        name = name.lower().strip()
-                        name = re.sub(r'[-_]', ' ', name)
-                        name = re.sub(r'\s+', ' ', name)
-                        name = re.sub(r's$', '', name)
-                        return name
-
-                    norm_ex = normalize(ex_name)
-                    matched_media = None
-
-                    # Try to find best matching key from map
-                    for key, media in EXERCISE_MEDIA_MAP.items():
-                        norm_key = normalize(key)
-                        if norm_key in norm_ex or norm_ex in norm_key:
-                            matched_media = media
-                            break
-
-                    if matched_media:
-                        ex["media"] = matched_media
-                        print(f"✅ Added media for exercise: {ex_name}")
-                    else:
-                        # No matching media found — handle gracefully
-                        ex["media"] = {"gif": None}
-                        print(f"⚠️ No matching media found for: {ex_name}")
-    except Exception as e:
-        print(f"❌ Error attaching exercise media: {e}")
-
+    parsed_response = attach_media_to_plan(parsed_response)
 
     # Save assistant reply
     crud_chat.create_message(
