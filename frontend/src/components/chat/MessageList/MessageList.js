@@ -1,5 +1,6 @@
 import { Card, Text, Avatar, useMantineTheme } from "@mantine/core";
 import { IconUser } from "@tabler/icons-react";
+import WorkoutPlan from "../WorkoutPlan";
 
 function parseText(text) {
   if (!text) return "";
@@ -16,6 +17,16 @@ function parseText(text) {
     }
   } else {
     textString = String(text);
+  }
+
+  // Check if it's a workout plan object
+  try {
+    const parsed = JSON.parse(textString);
+    if (parsed.title && parsed.plans) {
+      return parsed; // Return the object for WorkoutPlan component
+    }
+  } catch (e) {
+    // Not JSON, continue with text parsing
   }
 
   try {
@@ -63,16 +74,20 @@ function MessageList({ messages }) {
             border: `1px solid ${theme.other.border}`,
           }}>
           {msg.type === "bot" ? (
-            <pre
-              style={{
-                color: theme.other.text,
-                lineHeight: 1.6,
-                fontFamily: "inherit",
-                whiteSpace: "pre-wrap",
-                wordWrap: "break-word",
-              }}
-              dangerouslySetInnerHTML={{ __html: parseText(msg.text) }}
-            />
+            typeof parseText(msg.text) === "object" ? (
+              <WorkoutPlan data={parseText(msg.text)} />
+            ) : (
+              <pre
+                style={{
+                  color: theme.other.text,
+                  lineHeight: 1.6,
+                  fontFamily: "inherit",
+                  whiteSpace: "pre-wrap",
+                  wordWrap: "break-word",
+                }}
+                dangerouslySetInnerHTML={{ __html: parseText(msg.text) }}
+              />
+            )
           ) : (
             <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <Avatar size="sm" radius="xl" color="blue">

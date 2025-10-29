@@ -12,3 +12,4 @@ function App() {
 }
 
 export default App;
+//create a fitness plan for 1 day weight is 76kg height is 5.8 begineer muscle strength for male age is 27
