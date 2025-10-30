@@ -6,7 +6,7 @@ from app.database import crud_chat, models_chat
 from app.database.db_session import get_db
 from app.utils.summarize import generate_and_update_summary
 from app.utils.auth import oauth2_scheme, verify_token
-from app.utils.attach_media import attach_media_to_plan
+from app.utils.attach_media import attach_media_and_enrich
 from typing import Optional
 import json, re
 
@@ -98,7 +98,7 @@ async def generate_response_stream(
         parsed_response = {"error": f"Failed to parse response: {str(e)}"}
 
     # Attach exercise media to each exercise in the plan
-    parsed_response = attach_media_to_plan(parsed_response)
+    parsed_response = attach_media_and_enrich(parsed_response)
 
     # Save assistant reply
     crud_chat.create_message(

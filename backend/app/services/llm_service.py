@@ -50,7 +50,7 @@ class LLMService:
             return None
         if len(parsed_list) == 1:
             return parsed_list[0]
-        return parsed_list  # Return all JSON objects as a list
+        return parsed_list
 
 
     def generate_chatgpt_response(
@@ -59,7 +59,7 @@ class LLMService:
         model: str = "gpt-4o",
         history: Optional[List[Dict[str, str]]] = None,
         system_message: str = FITNESS_SYSTEM_MESSAGE,
-        max_tokens: int = 1000,
+        max_tokens: int = 1500,
         temperature: float = 0.7,
         enable_web_search: bool = False,
         weight_value: Optional[float] = None,
@@ -68,12 +68,6 @@ class LLMService:
         height_unit: Optional[str] = None,
         height_extra_inches: Optional[float] = None,
     ) -> Dict[str, Any]:
-        """
-        Uses client.responses.create(...) and returns a dict:
-         - If the model produced JSON matching a schema, returns that dict
-         - Otherwise returns {"text": "..."} or {"error": "..."}
-        This function intentionally does NOT use response_format/response_format parameter.
-        """
         try:
             logger.info(f"Generating response (model={model}, web_search={enable_web_search})")
 
@@ -106,7 +100,7 @@ class LLMService:
 
             messages.append({"role": "user", "content": prompt})
 
-            # === CALL THE RESPONSES API (no response_format here) ===
+            # CALL THE RESPONSES API (no response_format here)
             response = self.client.responses.create(
                 model=model,
                 input=messages,
@@ -114,7 +108,7 @@ class LLMService:
                 max_output_tokens=max_tokens,
             )
 
-            # Prefer output_parsed if available (structured JSON from server) ===
+            # Prefer output_parsed if available (structured JSON from server)
             try:
                 if hasattr(response, "output_parsed") and response.output_parsed:
                     parsed = response.output_parsed
@@ -146,7 +140,7 @@ class LLMService:
             except Exception:
                 logger.debug("response.output_text check failed; continuing", exc_info=True)
 
-            # Fall back to iterating response.output content blocks ===
+            # Fall back to iterating response.output content blocks
             try:
                 if hasattr(response, "output") and response.output:
                     for block in response.output:

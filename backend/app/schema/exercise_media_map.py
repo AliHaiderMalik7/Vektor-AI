@@ -3,35 +3,35 @@ EXERCISE_MEDIA_MAP = {
         "gif": "/static/gifs/pushups.gif"
     },
 
-    "archer-pushup": {
+    "archer-push-ups": {
         "gif": "/static/gifs/archer_pushup.gif"
     },
 
-    "clap-pushup": {
+    "clap-push-ups": {
         "gif": "/static/gifs/clap_pushup.gif"
     },
 
-    "close-grip-pushup": {
+    "close-grip-push-ups": {
         "gif": "/static/gifs/close_grip_pushup.gif"
     },
 
-    "hand-stand-pushup": {
+    "hand-stand-push-ups": {
         "gif": "/static/gifs/hand_stand_pushup.gif"
     },
 
-    "hindu-pushup": {
+    "hindu-push-ups": {
         "gif": "/static/gifs/hindu_pushup.gif"
     },
 
-    "incline-pushup": {
+    "incline-push-ups": {
         "gif": "/static/gifs/incline_pushup.gif"
     },
 
-    "pike-pushup": {
+    "pike-push-ups": {
         "gif": "/static/gifs/pike_pushup.gif"
     },
 
-    "weighted-pushup": {
+    "weighted-push-ups": {
         "gif": "/static/gifs/weighted_pushup.gif"
     },
 

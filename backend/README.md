@@ -44,6 +44,7 @@ backend/
 │   │   ├── summarize.py             # LLM-based summarization helper
 │   │   ├── auth.py
 │   │   ├── system_message_fitness.py
+│   │   ├── attach_media.py
 |   |   └── units_normalisation_and_bmi.py    
 │   │
 │   ├── model_cache/                 # Cached or downloaded models (optional)
