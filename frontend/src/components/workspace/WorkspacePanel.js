@@ -239,12 +239,12 @@ function FitnessPlanCard({ planData, theme }) {
                 : theme.other.surface,
           }}>
           <Group>
-            <ThemeIcon color="orange" size="lg" radius="xl" variant="light">
+            <ThemeIcon color="red" size="lg" radius="xl" variant="light">
               <IconTrendingUp size={20} />
             </ThemeIcon>
             <div>
               <Text size="lg" weight={700} style={{ color: theme.other.text }}>
-                {totalSets}
+                {planData.total_calories}
               </Text>
               <Text
                 size="sm"
@@ -254,7 +254,7 @@ function FitnessPlanCard({ planData, theme }) {
                       ? theme.colors.gray[4]
                       : theme.colors.gray[6],
                 }}>
-                Total Sets
+                Total Calories
               </Text>
             </div>
           </Group>
@@ -288,9 +288,14 @@ function FitnessPlanCard({ planData, theme }) {
               </ThemeIcon>
               {plan.week ? `Week ${plan.week} - ${plan.day}` : plan.day}
             </Title>
-            <Badge color="blue" variant="light" size="lg">
-              {plan.exercises && plan.exercises.length} Exercises
-            </Badge>
+            <Group spacing="sm">
+              <Badge color="blue" variant="light" size="lg">
+                {plan.exercises && plan.exercises.length} Exercises
+              </Badge>
+              <Text size="sm" style={{ color: theme.other.text }}>
+                Total Calories: {plan.total_calories}
+              </Text>
+            </Group>
           </Group>
 
           <Stack spacing="md">
@@ -340,29 +345,38 @@ function FitnessPlanCard({ planData, theme }) {
                                 size="sm"
                                 weight={500}
                                 style={{ color: theme.other.text }}>
-                                {exercise.sets} sets ×{" "}
-                                {exercise.reps || exercise.duration}
+                                {exercise.sets ? `${exercise.sets} sets × ${exercise.reps || exercise.duration}` : exercise.duration}
                               </Text>
                             </Group>
 
                             <Group spacing="xs">
-                              {/* {exercise?.rest && ( */}
-                                <ThemeIcon
-                                  color="orange"
-                                  size="sm"
-                                  radius="xl"
-                                  variant="filled">
-                                  <IconClock size={14} />
-                                </ThemeIcon>
-                              {/* )} */}
-
+                              <ThemeIcon
+                                color="orange"
+                                size="sm"
+                                radius="xl"
+                                variant="filled">
+                                <IconClock size={14} />
+                              </ThemeIcon>
                               <Text
                                 size="sm"
                                 weight={500}
                                 style={{ color: theme.other.text }}>
-                                  Rest: 1 minute
-                                {/* {exercise?.rest ? "Rest :" : ""}
-                                {exercise.rest} */}
+                                Rest: {exercise.rest}
+                              </Text>
+                            </Group>
+                            <Group spacing="xs">
+                              <ThemeIcon
+                                color="green"
+                                size="sm"
+                                radius="xl"
+                                variant="filled">
+                                <IconTrendingUp size={14} />
+                              </ThemeIcon>
+                              <Text
+                                size="sm"
+                                weight={500}
+                                style={{ color: theme.other.text }}>
+                                {exercise.calories}
                               </Text>
                             </Group>
                           </Group>
