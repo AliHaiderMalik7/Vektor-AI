@@ -25,24 +25,20 @@ import {
   IconCalendar,
   IconTrendingUp,
 } from "@tabler/icons-react";
-import TravelPlan from "./TravelPlan/TravelPlan";
 
 const baseUrl = process.env.REACT_APP_APP_URL;
 
 function FitnessPlanCard({ planData, theme }) {
   if (!planData || !planData.plans) return null;
 
-  // Collect all days from plans, handling nested structure
   const allDays = [];
   if (planData.plans && Array.isArray(planData.plans)) {
     planData.plans.forEach((plan) => {
       if (plan.days && Array.isArray(plan.days)) {
-        // Nested structure: plan has days array
         plan.days.forEach((day) => {
           allDays.push({ ...day, week: plan.week });
         });
       } else if (plan.day) {
-        // Flat structure: plan is directly a day
         allDays.push(plan);
       }
     });
@@ -52,14 +48,7 @@ function FitnessPlanCard({ planData, theme }) {
     (acc, plan) => acc + (plan.exercises ? plan.exercises.length : 0),
     0
   );
-  const totalSets = allDays.reduce(
-    (acc, plan) =>
-      acc +
-      (plan.exercises
-        ? plan.exercises.reduce((exAcc, ex) => exAcc + ex.sets, 0)
-        : 0),
-    0
-  );
+
 
   return (
     <Card
@@ -75,7 +64,6 @@ function FitnessPlanCard({ planData, theme }) {
         position: "relative",
         overflow: "hidden",
       }}>
-      {/* Decorative background element */}
       <div
         style={{
           position: "absolute",

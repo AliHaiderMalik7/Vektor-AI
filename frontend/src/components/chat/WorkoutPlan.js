@@ -44,8 +44,7 @@ function WorkoutPlan({ data }) {
 
   return (
     <div>
-      {/* <Title order={3}>{title}</Title>
-      <Text>{summary}</Text> */}
+   
       {bmi && <Badge>BMI: {bmi}</Badge>}
       {allDays?.map((day, index) => (
         <Card key={index} shadow="sm" p="md" radius="md" mt="md">
@@ -68,7 +67,6 @@ function WorkoutPlan({ data }) {
                       exercise.media.gif &&
                       (() => {
                         const fullUrl = getFullGifUrl(exercise.media.gif);
-                        console.log("GIF URL:", fullUrl);
                         return (
                           <Image
                             src={fullUrl}

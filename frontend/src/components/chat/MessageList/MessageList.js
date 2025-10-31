@@ -4,8 +4,6 @@ import WorkoutPlan from "../WorkoutPlan";
 
 function parseText(text) {
   if (!text) return "";
-
-  // Handle case where text is an object (e.g., { missing_info: "..." })
   let textString = "";
   if (typeof text === "object") {
     if (text.missing_info) {
@@ -19,14 +17,12 @@ function parseText(text) {
     textString = String(text);
   }
 
-  // Check if it's a workout plan object
   try {
     const parsed = JSON.parse(textString);
     if (parsed.title && parsed.plans) {
       return parsed; // Return the object for WorkoutPlan component
     }
   } catch (e) {
-    // Not JSON, continue with text parsing
   }
 
   try {
