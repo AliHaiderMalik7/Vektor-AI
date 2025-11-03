@@ -4,7 +4,8 @@ backend/
 │   ├── versions/
 │   ├── env.py
 │   ├── README
-│   ├── script,py.mako
+│   └── script,py.mako
+│
 ├── app/
 │   ├── __init__.py
 │   ├── main.py                      # FastAPI entry point
@@ -48,6 +49,12 @@ backend/
 |   |   └── units_normalisation_and_bmi.py    
 │   │
 │   ├── model_cache/                 # Cached or downloaded models (optional)
+│   │   └── data_store
+|   |       └── exercise_data_cache.json   
+│   │
+│   ├── static/                 # Cached or downloaded models (optional)
+│   │   └── gifs
+|   |       └── pushup.gif    
 │   │
 │   └── tests/                       # Unit & integration tests
 │       ├── __init__.py

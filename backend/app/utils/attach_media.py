@@ -55,15 +55,23 @@ def enrich_exercise(name: str):
     - target: key muscles worked
     - rest: rest time between sets (in seconds or minutes)
     - calories: estimated calories burned per set or per minute
+    - how_to_perform: 3–4 short, practical bullet points describing how to perform it safely and effectively.
+
     Example:
     {{
         "difficulty": "Intermediate",
         "body_part": "Chest",
         "target": "pectorals, triceps",
         "rest": "1 minute",
-        "calories": "8 kcal per set"
+        "calories": "8 kcal per set",
+        "how_to_perform": [
+            "Keep your body straight from head to heels.",
+            "Lower your chest until it nearly touches the floor.",
+            "Push through your palms to return to the start."
+        ]
     }}
     """
+
 
     try:
         res = client.chat.completions.create(
@@ -81,7 +89,13 @@ def enrich_exercise(name: str):
             "target": data.get("target", "multiple muscles"),
             "rest": data.get("rest", "1 minute"),
             "calories": data.get("calories", "5 kcal per set"),
-        }
+            "how_to_perform": data.get("how_to_perform", [
+                "Maintain proper form throughout the movement.",
+                "Perform each rep slowly and with control.",
+                "Breathe consistently during the exercise."
+            ])
+}
+
 
     except Exception:
         info = {

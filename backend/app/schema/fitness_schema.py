@@ -1,55 +1,66 @@
-FITNESS_RESPONSE_SCHEMA = {
+fitness_plan_schema = {
     "type": "object",
-    "additionalProperties": False,
     "properties": {
         "title": {"type": "string"},
         "summary": {"type": "string"},
-        "bmi": {"type": ["number", "null"]},
+        "bmi": {"type": "number"},
         "plans": {
             "type": "array",
             "items": {
                 "type": "object",
-                "additionalProperties": False,
                 "properties": {
+                    "day": {"type": "string"},
                     "week": {"type": "string"},
-                    "title": {"type": "string"},
-                    "description": {"type": "string"},
-                    "tips": {"type": "array", "items": {"type": "string"}},
-                    "days": {
+                    "month": {"type": "string"},
+                    "phase": {
+                        "type": "object",
+                        "properties": {
+                            "name": {"type": "string"},
+                            "description": {"type": "string"},
+                            "goal": {"type": "string"}
+                        },
+                        "required": ["name"]
+                    },
+                    "exercises": {
                         "type": "array",
                         "items": {
                             "type": "object",
-                            "additionalProperties": False,
                             "properties": {
-                                "day": {"type": "string"},
-                                "exercises": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "additionalProperties": False,
-                                        "properties": {
-                                            "name": {"type": "string"},
-                                            "sets": {"type": "integer"},
-                                            "reps": {"type": "string"},
-                                            "description": {"type": "string"},
-                                            "image": {"type": "string"},
-                                            "gif": {"type": "string"},
-                                        },
-                                        "required": ["name", "sets", "reps", "description", "image", "gif"]
-                                    }
-                                },
-                                "tips": {"type": "array", "items": {"type": "string"}}
+                                "name": {"type": "string"},
+                                "duration": {"type": "string"},
+                                "sets": {"type": ["integer", "string"]},
+                                "reps": {"type": ["integer", "string"]},
+                                "intensity": {"type": "string"},
+                                "difficulty": {"type": "string"},
+                                "body_part": {"type": "string"},
+                                "target": {"type": "string"},
+                                "rest": {"type": "string"},
+                                "calories": {"type": "string"},
+                                "media": {
+                                    "type": "object",
+                                    "properties": {
+                                        "gif": {"type": "string"}
+                                    },
+                                    "required": ["gif"]
+                                }
                             },
-                            "required": ["day", "exercises", "tips"]
+                            "required": ["name"]
                         }
-                    }
+                    },
+                    "tips": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    },
+                    "total_calories": {"type": "string"},
+                    "total_exercises": {"type": ["integer", "string"]}
                 },
-                "required": ["week", "title", "description", "days", "tips"]
+                "required": ["exercises"]
             }
         },
         "error": {"type": ["string", "null"]},
-        "missing_info": {"type": ["string", "null"]}
+        "missing_info": {"type": ["string", "null"]},
+        "total_calories": {"type": "string"},
+        "total_exercises": {"type": ["integer", "string"]}
     },
-    # Required must include every property, even optional ones
-    "required": ["title", "summary", "bmi", "plans", "error", "missing_info"]
+    "required": ["title", "plans"]
 }

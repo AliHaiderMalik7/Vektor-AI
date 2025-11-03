@@ -129,7 +129,7 @@ class LLMService:
                 # don't fail entirely here — fall back to text extraction
                 logger.debug("output_parsed check failed, falling back to text extraction", exc_info=True)
 
-            # Try response.output_text (some SDKs provide this property) ===
+            # Try response.output_text (some SDKs provide this property) 
             try:
                 if hasattr(response, "output_text") and response.output_text:
                     # output_text should already be a plain string
