@@ -16,9 +16,9 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def signup(request: UserSignupRequest, db: Session = Depends(get_db)):
     # Check for existing email or username
     if db.query(models.Users).filter(models.Users.email == request.email).first():
-        raise HTTPException(status_code=400, detail="Email already exists")
+        raise HTTPException(status=400, detail="Email already exists")
     if db.query(models.Users).filter(models.Users.username == request.username).first():
-        raise HTTPException(status_code=400, detail="Username already exists")
+        raise HTTPException(status=400, detail="Username already exists")
 
     # Hash password
     hashed_password = get_password_hash(request.password)
@@ -42,7 +42,7 @@ def login(request: UserLoginRequest, db: Session = Depends(get_db)):
     # Looking for a user in database    
     user = db.query(models.Users).filter(models.Users.username == request.username).first()
     if not user or not verify_password(request.password, user.password):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status=401, detail="Invalid credentials")
     
     # Token Generate
     access_token = create_access_token(data={"sub": user.username})

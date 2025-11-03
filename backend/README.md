@@ -17,6 +17,8 @@ backend/
 │   ├── api/                         # API endpoints
 │   │   ├── __init__.py
 │   │   ├── routes_user.py           # Authentication, user endpoints
+│   │   │── routes_vision.py          # route for image upload + analysis
+│   │   ├── vision_service.py         # handles image analysis + physique AI
 │   │   └── routes_model.py
 │   │
 │   ├── services/                    # Core business logic / services
@@ -43,9 +45,11 @@ backend/
 │   │   ├── __init__.py
 │   │   ├── helpers.py               # Generic utility functions
 │   │   ├── summarize.py             # LLM-based summarization helper
-│   │   ├── auth.py
+│   │   ├── auth.py                  # User authentication
 │   │   ├── system_message_fitness.py
-│   │   ├── attach_media.py
+│   │   ├── image_utils.py          # Image encoded 
+│   │   ├── json_utils.py           # Clean text and extract and parse JSON objects from a string
+│   │   ├── attach_media.py         # Attaching media in JSON and others objects
 |   |   └── units_normalisation_and_bmi.py    
 │   │
 │   ├── model_cache/                 # Cached or downloaded models (optional)
@@ -53,8 +57,14 @@ backend/
 |   |       └── exercise_data_cache.json   
 │   │
 │   ├── static/                 # Cached or downloaded models (optional)
+│   │   ├── uploads/            # where uploaded images are stored
+│   │       └── uuid image 
 │   │   └── gifs
-|   |       └── pushup.gif    
+│   │       └── pushup.gif 
+│   │ 
+│   ├── vision/                         # optional folder for detailed CV logic
+│   │    ├── body_analysis.py           # physique feature extraction, fat %, etc.
+│   │    └── posture_assessment.py      # optional: for form correction late   
 │   │
 │   └── tests/                       # Unit & integration tests
 │       ├── __init__.py

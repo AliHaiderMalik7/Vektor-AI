@@ -26,19 +26,19 @@ async def generate_response_stream(
     username = verify_token(token)
     user = db.query(models_chat.Users).filter(models_chat.Users.username == username).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status=404, detail="User not found")
 
     user_id = user.id
     conv_id: Optional[int] = getattr(request, "conversation_id", None)
     if not conv_id:
-        raise HTTPException(status_code=400, detail="conversation_id is required")
+        raise HTTPException(status=400, detail="conversation_id is required")
 
     conversation = db.query(models_chat.Conversation).filter(
         models_chat.Conversation.id == conv_id
     ).first()
 
     if not conversation:
-        raise HTTPException(status_code=404, detail="Conversation not found")
+        raise HTTPException(status=404, detail="Conversation not found")
 
     print(f"✅ Conversation {conv_id} verified for user {user_id}")
 
