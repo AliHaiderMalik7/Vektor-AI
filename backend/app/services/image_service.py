@@ -1,6 +1,6 @@
 import os, re, uuid, json
 from openai import OpenAI
-from fastapi import UploadFile
+from fastapi import UploadFile, HTTPException, status
 from app.utils.image_utils import get_image_base64
 
 client = OpenAI()
@@ -8,22 +8,66 @@ client = OpenAI()
 UPLOAD_DIR = "app/static/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-
 async def analyze_physique(file: UploadFile, user_prompt: str):
     """
     Analyze user's physique using OpenAI Vision (GPT-4o) and their custom prompt.
-    Returns a structured fitness plan in JSON.
+    Includes optimized pre-checks:
+      1. Fast local prompt relevance check
+      2. Slow image relevance check (only runs if prompt is valid)
     """
-    # Save uploaded image
+
+    # Save image
     file_id = str(uuid.uuid4()) + os.path.splitext(file.filename)[1]
     file_path = os.path.join(UPLOAD_DIR, file_id)
     with open(file_path, "wb") as f:
         f.write(await file.read())
 
-    # Convert to base64 for OpenAI Vision
     base64_image = get_image_base64(file_path)
 
-    # Combine AI instructions + user prompt
+    # Fast local keyword check for prompt
+    FITNESS_KEYWORDS = [
+        "fitness", "exercise", "workout", "gym", "training", "plan",
+        "gain", "lose", "muscle", "fat", "body", "strength", "diet"
+    ]
+    if not any(k in user_prompt.lower() for k in FITNESS_KEYWORDS):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": "I am only assisted to Fitness and Exercise"}
+        )
+
+    # Slow Vision check (only if prompt passed)
+    try:
+        image_check = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are an AI that identifies image categories."},
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": (
+                                "Does this image show a human body, physique, workout, "
+                                "gym activity, or fitness-related content? Answer only 'yes' or 'no'."
+                            ),
+                        },
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}" }},
+                    ],
+                },
+            ],
+        )
+        image_relevant = "yes" in image_check.choices[0].message.content.lower()
+    except Exception:
+        image_relevant = False
+
+    # Reject if image irrelevant
+    if not image_relevant:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"error": "I am only assisted to Fitness and Exercise"}
+        )
+
+    # Main physique + plan generation
     full_prompt = f"""
     You are a professional fitness coach and physique expert.
     A user uploaded their body image and gave this request:
@@ -36,7 +80,7 @@ async def analyze_physique(file: UploadFile, user_prompt: str):
     {{
         "title": "Plan title",
         "summary": "Brief description of physique and focus",
-        "plan_duration": "Number of days or weeks (decide based on physique and prompt)",
+        "plan_duration": "Number of days or weeks",
         "plans": [
             {{
                 "day": "Day 1",
@@ -60,25 +104,24 @@ async def analyze_physique(file: UploadFile, user_prompt: str):
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4o-mini",  # supports image + text
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a fitness expert analyzing body images."},
                 {
                     "role": "user",
                     "content": [
                         {"type": "text", "text": full_prompt},
-                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}},
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}" }},
                     ],
                 },
             ],
         )
 
-        # Extract content safely
         raw_output = response.choices[0].message.content.strip()
         raw_output = re.sub(r"^```json|```$", "", raw_output).strip()
         parsed_output = json.loads(raw_output)
 
-    except Exception as e:
+    except Exception:
         parsed_output = {
             "title": "Default Fitness Plan",
             "summary": "Could not fully parse AI response. Basic plan generated.",
