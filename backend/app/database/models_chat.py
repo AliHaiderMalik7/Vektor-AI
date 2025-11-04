@@ -15,6 +15,7 @@ class Users(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     conversations = relationship("Conversation", back_populates="user", cascade="all, delete-orphan")
+    images = relationship("Image", back_populates="user", cascade="all, delete-orphan")
 
 
 class Conversation(Base):
@@ -29,6 +30,7 @@ class Conversation(Base):
 
     user = relationship("Users", back_populates="conversations")
     messages = relationship("Message", back_populates="conversation", cascade="all, delete-orphan")
+    images = relationship("Image", back_populates="conversation", cascade="all, delete-orphan")
 
 
 class Message(Base):
@@ -42,3 +44,18 @@ class Message(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     conversation = relationship("Conversation", back_populates="messages")
+
+class Image(Base):
+    __tablename__ = "images"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    conversation_id = Column(Integer, ForeignKey("conversations.id", ondelete="SET NULL"), nullable=True)
+    file_path = Column(String, nullable=False)
+    file_name = Column(String, nullable=False)
+    file_type = Column(String, default="image/jpeg")
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("Users", back_populates="images")
+    conversation = relationship("Conversation", back_populates="images")
+

@@ -5,6 +5,10 @@ from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from dotenv import load_dotenv
 import os
+from fastapi import Depends
+from sqlalchemy.orm import Session
+from app.database.db_session import get_db
+from app.database import models_chat as models
 
 load_dotenv()
 
@@ -45,3 +49,38 @@ def verify_token(token: str):
         return username
     except JWTError:
         raise HTTPException(status = 401, detail="Invalid token")
+    
+
+# Current user
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    """
+    Extract current user from JWT and fetch from DB.
+    """
+    try:
+        payload = jwt.decode(token, JWT_TOKEN, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+
+        if username is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid authentication credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        user = db.query(models.Users).filter(models.Users.username == username).first()
+
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        return user
+
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )

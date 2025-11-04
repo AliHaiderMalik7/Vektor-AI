@@ -51,7 +51,6 @@ def delete_conversation(db: Session, conversation_id: int) -> bool:
     return False
 
 # Message CRUD
-
 def create_message(
     db: Session, 
     conversation_id: int, 
@@ -134,3 +133,36 @@ def get_conversations_by_user_id(db: Session, user_id: int):
         .all()
     )
     return conversations
+
+# Image CRUD
+# Image CRUD
+def create_image_record(
+    db: Session, 
+    user_id: int, 
+    file_path: str, 
+    file_name: str, 
+    conversation_id: int = None, 
+    file_type: str = "image/jpeg"
+):
+    from app.database import models_chat as models
+    img = models.Image(
+        user_id=user_id,
+        conversation_id=conversation_id,
+        file_path=file_path,
+        file_name=file_name,
+        file_type=file_type
+    )
+    db.add(img)
+    db.commit()
+    db.refresh(img)
+    return img
+
+
+def get_images_by_user(db: Session, user_id: int):
+    from app.database import models_chat as models
+    return db.query(models.Image).filter(models.Image.user_id == user_id).all()
+
+
+def get_image_by_id(db: Session, image_id: int):
+    from app.database import models_chat as models
+    return db.query(models.Image).filter(models.Image.id == image_id).first()

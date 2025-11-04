@@ -17,12 +17,12 @@ backend/
 │   ├── api/                         # API endpoints
 │   │   ├── __init__.py
 │   │   ├── routes_user.py           # Authentication, user endpoints
-│   │   │── routes_vision.py          # route for image upload + analysis
-│   │   ├── vision_service.py         # handles image analysis + physique AI
+│   │   │── routes_image.py          # route for image upload + analysis
 │   │   └── routes_model.py
 │   │
 │   ├── services/                    # Core business logic / services
 │   │   ├── __init__.py
+│   │   ├── image_service.py         # handles image analysis + physique AI
 │   │   └── llm_service.py           # Handles OpenAI + memory
 │   │
 │   ├── database/                    # Persistence layer

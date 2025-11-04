@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from app.api import routes_model, routes_user, routes_vision
+from app.api import routes_model, routes_user, routes_image
 from app.core.config import settings
 from app.services.llm_service import LLMService
 from app.models.request_models import LLMRequest
@@ -42,9 +42,9 @@ app.include_router(
 
 # Vision routes
 app.include_router(
-    routes_vision.router,
-    prefix = "/vision",
-    tags = ["Vision"]
+    routes_image.router,
+    prefix = "/image",
+    tags = ["Image"]
 )
 
 
