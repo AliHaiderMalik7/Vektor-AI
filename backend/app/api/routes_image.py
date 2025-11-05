@@ -15,42 +15,90 @@
 
 
 # ------------ For Picture Upload and Prompt Handling --------------
-
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException # pyright: ignore[reportMissingImports]
+from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException, status # pyright: ignore[reportMissingImports]
+from sqlalchemy.orm import Session # pyright: ignore[reportMissingImports]
+from app.database.db_session import get_db
 from app.services.image_service import analyze_physique
 from app.utils.attach_media import attach_media_and_enrich
+from app.database import models_chat as models
 import json
 
 router = APIRouter()
 
-
 @router.post("/analyze-physique/")
 async def analyze_user_image(
     file: UploadFile = File(...),
-    prompt: str = Form(...)
+    prompt: str = Form(...),
+    conversation_id: int | None = Form(None),
+    db: Session = Depends(get_db)
 ):
     """
-    User uploads an image and provides a custom text prompt.
-    Returns a personalized plan based on both.
+    Handles:
+    - Image upload
+    - Fitness-related prompt
+    - Contextual conversation memory
+    - Returns structured AI fitness plan
     """
+
     try:
-        # Step 1: analyze image + prompt with OpenAI Vision
-        result = await analyze_physique(file, prompt)
+        # Load previous conversation context if exists
+        context_text = ""
+        if conversation_id:
+            prev_msgs = (
+                db.query(models.Message)
+                .filter(models.Message.conversation_id == conversation_id)
+                .order_by(models.Message.id.desc())
+                .limit(3)
+                .all()
+            )
+            context_text = " ".join([m.content for m in reversed(prev_msgs)])
+
+        # Analyze image + prompt + context
+        result = await analyze_physique(file, prompt, context_text)
         analysis = result.get("analysis", {})
 
-        # Step 2: attach exercise media, calories, difficulty
+        # Enrich the plan with media, calories, difficulty
         enriched_plan = attach_media_and_enrich(analysis)
 
-        # Step 3: return structured plan
+        # If conversation doesn’t exist, create new one
+        if not conversation_id:
+            new_convo = models.Conversation(title="Fitness Conversation")
+            db.add(new_convo)
+            db.commit()
+            db.refresh(new_convo)
+            conversation_id = new_convo.id
+
+        # Save user prompt and AI response to DB
+        user_msg = models.Message(
+            conversation_id=conversation_id,
+            role="user",
+            content=prompt
+        )
+        ai_msg = models.Message(
+            conversation_id=conversation_id,
+            role="assistant",
+            content=json.dumps(enriched_plan)
+        )
+        db.add_all([user_msg, ai_msg])
+        db.commit()
+
+        # Return structured response
         return {
             "status": 200,
+            "conversation_id": conversation_id,
             "image_id": result.get("image_id"),
             "path": result.get("path"),
-            "response": enriched_plan
+            "response": enriched_plan,
         }
 
+    except HTTPException as e:
+        raise e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e),
+        )
+
 
 
 # # ------- Testing to Upload Images on Database -------

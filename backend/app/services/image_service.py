@@ -8,15 +8,12 @@ client = OpenAI()
 UPLOAD_DIR = "app/static/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-async def analyze_physique(file: UploadFile, user_prompt: str):
+async def analyze_physique(file: UploadFile, user_prompt: str, context: str = ""):
     """
-    Analyze user's physique using OpenAI Vision (GPT-4o) and their custom prompt.
-    Includes optimized pre-checks:
-      1. Fast local prompt relevance check
-      2. Slow image relevance check (only runs if prompt is valid)
+    Analyze user's physique using OpenAI Vision (GPT-4o-mini) with optional conversation context.
     """
 
-    # Save image
+    # Save image locally
     file_id = str(uuid.uuid4()) + os.path.splitext(file.filename)[1]
     file_path = os.path.join(UPLOAD_DIR, file_id)
     with open(file_path, "wb") as f:
@@ -24,53 +21,58 @@ async def analyze_physique(file: UploadFile, user_prompt: str):
 
     base64_image = get_image_base64(file_path)
 
-    # Fast local keyword check for prompt
+    # Fast prompt validation (skip if context already exists)
     FITNESS_KEYWORDS = [
         "fitness", "exercise", "workout", "gym", "training", "plan",
         "gain", "lose", "muscle", "fat", "body", "strength", "diet"
     ]
-    if not any(k in user_prompt.lower() for k in FITNESS_KEYWORDS):
+    if not context and not any(k in user_prompt.lower() for k in FITNESS_KEYWORDS):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"error": "I am only assisted to Fitness and Exercise"}
+            detail={"error": "I am only assisted to Fitness and Exercise"},
         )
 
-    # Slow Vision check (only if prompt passed)
-    try:
-        image_check = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are an AI that identifies image categories."},
-                {
-                    "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": (
-                                "Does this image show a human body, physique, workout, "
-                                "gym activity, or fitness-related content? Answer only 'yes' or 'no'."
-                            ),
-                        },
-                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}" }},
-                    ],
-                },
-            ],
-        )
-        image_relevant = "yes" in image_check.choices[0].message.content.lower()
-    except Exception:
-        image_relevant = False
+    # Vision relevance check (run only if new prompt)
+    image_relevant = True
+    if not context:
+        try:
+            image_check = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "You are an AI that identifies image categories."},
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": (
+                                    "Does this image show a human body, physique, workout, "
+                                    "gym activity, or fitness-related content? Answer only 'yes' or 'no'."
+                                ),
+                            },
+                            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}},
+                        ],
+                    },
+                ],
+            )
+            image_relevant = "yes" in image_check.choices[0].message.content.lower()
+        except Exception:
+            image_relevant = False
 
-    # Reject if image irrelevant
-    if not image_relevant:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"error": "I am only assisted to Fitness and Exercise"}
-        )
+        if not image_relevant:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={"error": "I am only assisted to Fitness and Exercise"},
+            )
 
-    # Main physique + plan generation
+    # Merge context + prompt
+    if context:
+        user_prompt = f"Previous context:\n{context}\nUser update:\n{user_prompt}"
+
+    # Main structured fitness plan generation
     full_prompt = f"""
     You are a professional fitness coach and physique expert.
-    A user uploaded their body image and gave this request:
+    A user uploaded their body image and said:
     "{user_prompt}"
 
     Analyze their physique visually and generate a structured workout plan
