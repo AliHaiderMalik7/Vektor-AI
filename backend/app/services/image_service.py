@@ -1,6 +1,6 @@
 import os, re, uuid, json
 from openai import OpenAI
-from fastapi import UploadFile, HTTPException, status
+from fastapi import UploadFile, HTTPException, status # pyright: ignore[reportMissingImports]
 from app.utils.image_utils import get_image_base64
 
 client = OpenAI()

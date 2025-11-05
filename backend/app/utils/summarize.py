@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session # pyright: ignore[reportMissingImports]
 from openai import OpenAI
 from app.database.models_chat import Conversation
 from app.database.crud_chat import get_messages_by_conversation_id

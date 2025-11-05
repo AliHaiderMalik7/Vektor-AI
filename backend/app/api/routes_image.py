@@ -1,6 +1,6 @@
 # ------------ Previous Simple Image Analysis Endpoint --------------
 
-# from fastapi import APIRouter, UploadFile, File, HTTPException
+# from fastapi import APIRouter, UploadFile, File, HTTPException # pyright: ignore[reportMissingImports]
 # from app.services.image_service import analyze_physique
 
 # router = APIRouter()
@@ -16,7 +16,7 @@
 
 # ------------ For Picture Upload and Prompt Handling --------------
 
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException # pyright: ignore[reportMissingImports]
 from app.services.image_service import analyze_physique
 from app.utils.attach_media import attach_media_and_enrich
 import json
@@ -55,8 +55,8 @@ async def analyze_user_image(
 
 # # ------- Testing to Upload Images on Database -------
 
-# from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends
-# from sqlalchemy.orm import Session
+# from fastapi import APIRouter, UploadFile, File, Form, HTTPException, Depends # pyright: ignore[reportMissingImports]
+# from sqlalchemy.orm import Session # pyright: ignore[reportMissingImports]
 # from app.database.db_session import get_db
 # from app.database import crud_chat
 # from app.services.image_service import analyze_physique

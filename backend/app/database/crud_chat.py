@@ -1,5 +1,5 @@
-from sqlalchemy.orm import Session
-from sqlalchemy import desc
+from sqlalchemy.orm import Session # pyright: ignore[reportMissingImports]
+from sqlalchemy import desc # pyright: ignore[reportMissingImports]
 from app.database import models_chat as models
 from typing import Optional, List
 

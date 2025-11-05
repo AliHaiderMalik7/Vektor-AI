@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException # pyright: ignore[reportMissingImports]
+from sqlalchemy.orm import Session# pyright: ignore[reportMissingImports]
 from app.services.llm_service import LLMService
 from app.models.request_models import LLMRequest
 from app.database import crud_chat, models_chat

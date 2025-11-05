@@ -1,24 +1,24 @@
-from datetime import datetime, timedelta
-from jose import JWTError, jwt
-from passlib.context import CryptContext
-from fastapi import HTTPException, status, Depends
-from fastapi.security import OAuth2PasswordBearer
+from datetime import datetime, timedelta, timezone
+from jose import JWTError, jwt  # pyright: ignore[reportMissingModuleSource]
+from passlib.context import CryptContext  # pyright: ignore[reportMissingModuleSource]
+from fastapi import HTTPException, status, Depends # pyright: ignore[reportMissingImports]
+from fastapi.security import OAuth2PasswordBearer # pyright: ignore[reportMissingImports]
 from dotenv import load_dotenv
 import os
-from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session # pyright: ignore[reportMissingImports]
 from app.database.db_session import get_db
 from app.database import models_chat as models
 
 load_dotenv()
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="user/login")
+
 JWT_TOKEN = os.getenv("JWT_TOKEN_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
-ACCESS_TOKEN = 1440
-REFRESH_TOKEN = 7
+ACCESS_TOKEN_EXPIRE_MINUTES = 1440
+REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="user/login")
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -27,14 +27,16 @@ def get_password_hash(password):
     return pwd_context.hash(password[:72])
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
+    """Generate a short-lived JWT access token."""
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN))
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, JWT_TOKEN, algorithm=ALGORITHM)
     return encoded_jwt
 
 def create_refresh_token(data: dict):
-    expire = datetime.utcnow() + timedelta(days=REFRESH_TOKEN)
+    """Generate a long-lived JWT refresh token."""
+    expire = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     to_encode = data.copy()
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, JWT_TOKEN, algorithm=ALGORITHM)

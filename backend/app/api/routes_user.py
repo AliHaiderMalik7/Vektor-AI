@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
-from passlib.context import CryptContext
+from fastapi import APIRouter, Depends, HTTPException # pyright: ignore[reportMissingImports]
+from sqlalchemy.orm import Session # pyright: ignore[reportMissingImports]
+from passlib.context import CryptContext  # pyright: ignore[reportMissingModuleSource]
 from app.database import models_chat as models
 from app.database.db_session import get_db
 from app.utils.auth import get_password_hash, verify_password, create_access_token, create_refresh_token
@@ -25,7 +25,7 @@ def signup(request: UserSignupRequest, db: Session = Depends(get_db)):
     user = models.Users(
         first_name=request.first_name,
         last_name=request.last_name,
-        email=request.email,
+        email=request.email.lower(),
         username=request.username,
         password=hashed_password
     )
@@ -33,7 +33,11 @@ def signup(request: UserSignupRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
 
-    return {"status": 201, "message": "User created successfully", "user_id": user.id}
+    return {
+        "status": 201,
+        "message": "User created successfully",
+        "user_id": user.id
+        }
 
 # Login
 
@@ -48,4 +52,12 @@ def login(request: UserLoginRequest, db: Session = Depends(get_db)):
     access_token = create_access_token(data={"sub": user.username})
     refresh_token = create_refresh_token(data={"sub": user.username})
 
-    return TokenResponse(status = 200, message = "Login Successful",access_token=access_token, refresh_token=refresh_token)
+    return TokenResponse(
+        status = 200,
+        message = "Login Successful",
+        access_token = access_token,
+        refresh_token = refresh_token,
+        token_type = "bearer",
+        user_id = user.id,
+        username = user.username
+        )
